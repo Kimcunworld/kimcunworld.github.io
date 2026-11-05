@@ -1,7 +1,7 @@
 // Đề luyện rút gọn · chỉ dùng kiến thức đã học
 window.MOCKS = [
 {
-  id:"ielts-1", lang:"en", title:"Đề IELTS rút gọn số 1", minutes:30, need:1,
+  id:"ielts-1", lang:"en", title:"Đề IELTS rút gọn số 1", minutes:30, need:14,
   desc:"Nghe 6 câu · Đọc 6 câu · Viết 120 từ · Nói Part 1, 2, 3",
   steps:[
     {type:"drill", name:"Listening", intro:"Section 1: điền thông tin. Nghe tối đa 2 lần như bài thi thật được nghe 1 lần, nên cố gắng ngay từ lượt đầu.", head:{audio:[
@@ -47,7 +47,7 @@ window.MOCKS = [
   ]
 },
 {
-  id:"hsk-1", lang:"zh", title:"Đề HSK rút gọn số 1", minutes:15, need:1,
+  id:"hsk-1", lang:"zh", title:"Đề HSK rút gọn số 1", minutes:15, need:14,
   desc:"Nghe · Đọc · Viết chữ · Nói 1 phút",
   steps:[
     {type:"drill", name:"Nghe", intro:"Mỗi câu nghe tối đa 2 lần.", items:[
