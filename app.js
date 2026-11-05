@@ -435,7 +435,7 @@ function renderSettings(){
       ${on?`<div class="btns" style="justify-content:flex-start;margin-top:10px"><button class="btn" data-set="sync">Đồng bộ ngay</button><button class="btn ghost" data-set="off">Tắt trên máy này</button></div>`
       :`<p class="small">Tiến độ được lưu vào một ghi chú bí mật (Gist) trong tài khoản GitHub của KC. Mỗi thiết bị dán mã truy cập một lần.</p>
       <ol class="steps">
-        <li>Mở <a href="https://github.com/settings/tokens/new?scopes=gist&description=Kim%20Cun%20hoc%20di" target="_blank" rel="noopener">trang tạo mã truy cập</a> (đã đăng nhập tài khoản Kimcunhocdi).</li>
+        <li>Mở <a href="https://github.com/settings/tokens/new?scopes=gist&description=Kim%20Cun%20hoc%20di" target="_blank" rel="noopener">trang tạo mã truy cập</a> (đã đăng nhập tài khoản Kimcunworld).</li>
         <li>Ô Note giữ nguyên, Expiration chọn thời hạn KC muốn, chỉ tick quyền <b>gist</b>.</li>
         <li>Bấm Generate token, sao chép mã bắt đầu bằng ghp_ và dán vào ô dưới đây.</li>
         <li>Trên iPad và máy tính, KC dán lại đúng mã đó một lần là xong.</li>
