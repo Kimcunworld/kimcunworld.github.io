@@ -79,9 +79,9 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
 <body>
 <header class="hero">
   <div class="wrap">
-    <a class="badge" href="./" style="text-decoration:none">‹ Về trang chủ</a> <span class="badge">Bài kiểm tra đầu vào</span>
-    <h1>Chào KC, mình xem KC đang ở đâu nhé</h1>
-    <p class="lead">Làm thật lòng, không tra cứu. Câu nào không biết thì chọn đại hoặc bỏ trống, để lộ trình 30 ngày vừa sức với KC.</p>
+    <a class="badge" href="./" style="text-decoration:none">‹ Về trang chủ</a> <span class="badge">Bài kiểm tra đầu vào</span> <a class="badge" href="./#/profiles/new" style="text-decoration:none">Tạo hồ sơ ›</a>
+    <h1>Mình xem bạn đang ở trình độ nào nhé</h1>
+    <p class="lead">Làm thật lòng, không tra cứu. Câu nào không biết thì chọn đại hoặc bỏ trống, để chọn cấp độ vừa sức.</p>
   </div>
 </header>
 
@@ -227,9 +227,10 @@ document.getElementById("en-submit").onclick=()=>{
   else if(s<=15){lvl="B2";band="khoảng 5.5 đến 6.5";}
   else if(s<=18){lvl="B2+ / C1";band="khoảng 6.5 đến 7.0";}
   else{lvl="C1";band="khoảng 7.0 trở lên";}
+  const lvn=s<=6?1:s<=11?2:s<=15?3:s<=18?4:5;try{const o=JSON.parse(localStorage.getItem("kc-world-testlv")||"{}");o.en=lvn;localStorage.setItem("kc-world-testlv",JSON.stringify(o));}catch(e){}
   const el=document.getElementById("en-result");
   el.innerHTML=`<h3>Kết quả tiếng Anh</h3><div class="score">${s}/20</div>
-   <p>Trình độ ước tính: <b>${lvl}</b>, tương đương IELTS Reading và Listening <b>${band}</b>. Mục tiêu của KC là 7.5.</p>
+   <p>Trình độ ước tính: <b>${lvl}</b>, tương đương IELTS Reading và Listening <b>${band}</b>.</p><p>Gợi ý cấp độ luyện tập: <b>Band ${["4.5","5.5","6.5","7.5","8.0"][lvn-1]}</b> (đã lưu, sẽ tự điền khi tạo hồ sơ).</p>
    <ul>${Object.entries(byLv).map(([k,v])=>`<li>Câu mức ${k}: đúng ${v[0]}/${v[1]}</li>`).join("")}</ul>
    <button class="submit ghost" id="en-copy">Sao chép kết quả gửi cho Claude</button>
    <p class="note">Đây là ước lượng nhanh, chưa có Viết và Nói. Đáp án đúng đã được tô xanh ở từng câu.</p>`;
@@ -239,13 +240,14 @@ document.getElementById("en-submit").onclick=()=>{
 };
 
 function zhResult(level,detail){
+  try{const o=JSON.parse(localStorage.getItem("kc-world-testlv")||"{}");o.zh=Math.min(5,level+1);localStorage.setItem("kc-world-testlv",JSON.stringify(o));}catch(e){}
   const el=document.getElementById("zh-result");
   const map={0:["Bắt đầu từ con số 0","Học pinyin, 4 thanh điệu, nét cơ bản của chữ Hán và câu chào hỏi."],
     1:["Mức HSK1","Đã có nền tảng, củng cố phát âm và học tiếp mẫu câu HSK2."],
     2:["Mức HSK2","Giao tiếp cơ bản ổn, học tiếp cấu trúc HSK3 và hội thoại công việc."],
     3:["Mức HSK3 trở lên","Có thể học hội thoại F&B và marketing dài hơn, kèm viết đoạn ngắn."]};
   el.innerHTML=`<h3>Kết quả tiếng Trung</h3><div class="score" style="font-size:30px">${map[level][0]}</div><p>${map[level][1]}</p>${detail}
-   <button class="submit ghost" id="zh-copy">Sao chép kết quả gửi cho Claude</button>`;
+   <p>Gợi ý cấp độ luyện tập: <b>HSK${Math.min(5,level+1)}</b> (đã lưu, sẽ tự điền khi tạo hồ sơ).</p><button class="submit ghost" id="zh-copy">Sao chép kết quả gửi cho Claude</button>`;
   el.classList.add("show");
   document.getElementById("zh-copy").onclick=()=>copy(`Kết quả tiếng Trung: ${map[level][0]}. `+el.dataset.raw);
   el.scrollIntoView({behavior:"smooth"});

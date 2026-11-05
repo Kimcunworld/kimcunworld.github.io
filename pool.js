@@ -65,3 +65,19 @@ window.ZH_TONES = [
   {h:"开",py:"kāi",t:1},{h:"玩",py:"wán",t:2},{h:"老",py:"lǎo",t:3},{h:"笑",py:"xiào",t:4},
   {h:"天",py:"tiān",t:1},{h:"格",py:"gé",t:2},{h:"你",py:"nǐ",t:3},{h:"性",py:"xìng",t:4}
 ];
+
+// Gắn cấp độ: tiếng Anh 1..5 = band 4.5, 5.5, 6.5, 7.5, 8.0 · tiếng Trung 1..5 = HSK1..HSK5
+window.EN_POOL.forEach(w=>{if(!w.lv)w.lv=3;});
+window.ZH_POOL.forEach(w=>{if(!w.lv)w.lv=2;});
+[
+ [1,"price","/praɪs/","giá"],[1,"cheap","/tʃiːp/","rẻ"],[1,"busy","/ˈbɪzi/","bận"],[1,"menu","/ˈmenjuː/","thực đơn"],[1,"order","/ˈɔːdə(r)/","gọi món"],[1,"open","/ˈəʊpən/","mở"],[1,"hungry","/ˈhʌŋɡri/","đói"],[1,"delicious","/dɪˈlɪʃəs/","ngon"],[1,"weekend","/ˌwiːkˈend/","cuối tuần"],[1,"friendly","/ˈfrendli/","thân thiện"],
+ [2,"appointment","/əˈpɔɪntmənt/","cuộc hẹn"],[2,"deliver","/dɪˈlɪvə(r)/","giao hàng"],[2,"complain","/kəmˈpleɪn/","phàn nàn"],[2,"experience","/ɪkˈspɪəriəns/","kinh nghiệm"],[2,"manager","/ˈmænɪdʒə(r)/","người quản lý"],[2,"discount","/ˈdɪskaʊnt/","giảm giá"],[2,"recommend","/ˌrekəˈmend/","gợi ý, giới thiệu"],[2,"available","/əˈveɪləbl/","có sẵn"],[2,"reservation","/ˌrezəˈveɪʃn/","sự đặt chỗ"],[2,"improve","/ɪmˈpruːv/","cải thiện"],
+ [4,"substantial","/səbˈstænʃl/","đáng kể"],[4,"mitigate","/ˈmɪtɪɡeɪt/","giảm nhẹ"],[4,"inevitable","/ɪnˈevɪtəbl/","không thể tránh"],[4,"detrimental","/ˌdetrɪˈmentl/","có hại"],[4,"feasible","/ˈfiːzəbl/","khả thi"],[4,"unprecedented","/ʌnˈpresɪdentɪd/","chưa từng có"],[4,"incentive","/ɪnˈsentɪv/","sự khuyến khích"],[4,"sustainable","/səˈsteɪnəbl/","bền vững"],[4,"disparity","/dɪˈspærəti/","sự chênh lệch"],[4,"plummet","/ˈplʌmɪt/","lao dốc"],
+ [5,"ubiquitous","/juːˈbɪkwɪtəs/","có mặt khắp nơi"],[5,"exacerbate","/ɪɡˈzæsəbeɪt/","làm trầm trọng thêm"],[5,"paradigm","/ˈpærədaɪm/","mô hình tư duy"],[5,"meticulous","/məˈtɪkjələs/","tỉ mỉ"],[5,"scrutinise","/ˈskruːtənaɪz/","xem xét kỹ lưỡng"],[5,"pervasive","/pəˈveɪsɪv/","lan rộng"],[5,"alleviate","/əˈliːvieɪt/","làm dịu bớt"],[5,"tangible","/ˈtændʒəbl/","hữu hình, cụ thể"],[5,"proliferation","/prəˌlɪfəˈreɪʃn/","sự gia tăng nhanh"],[5,"nuanced","/ˈnjuːɑːnst/","nhiều sắc thái"]
+].forEach(([lv,w,ipa,vi])=>window.EN_POOL.push({w,ipa,vi,lv}));
+[
+ [1,"水","shuǐ","nước"],[1,"米饭","mǐfàn","cơm"],[1,"钱","qián","tiền"],[1,"多少","duōshao","bao nhiêu"],[1,"去","qù","đi"],[1,"来","lái","đến"],[1,"大","dà","to"],[1,"小","xiǎo","nhỏ"],[1,"人","rén","người"],[1,"吃","chī","ăn"],
+ [3,"习惯","xíguàn","thói quen"],[3,"环境","huánjìng","môi trường"],[3,"满意","mǎnyì","hài lòng"],[3,"经理","jīnglǐ","quản lý"],[3,"检查","jiǎnchá","kiểm tra"],[3,"解决","jiějué","giải quyết"],[3,"安排","ānpái","sắp xếp"],[3,"认真","rènzhēn","nghiêm túc"],[3,"简单","jiǎndān","đơn giản"],[3,"着急","zháojí","sốt ruột"],
+ [4,"熟悉","shúxī","quen thuộc"],[4,"适应","shìyìng","thích ứng"],[4,"印象","yìnxiàng","ấn tượng"],[4,"负责","fùzé","phụ trách"],[4,"尽快","jǐnkuài","càng sớm càng tốt"],[4,"部门","bùmén","bộ phận"],[4,"接待","jiēdài","tiếp đón"],[4,"手续","shǒuxù","thủ tục"],[4,"优点","yōudiǎn","ưu điểm"],[4,"竞争","jìngzhēng","cạnh tranh"],
+ [5,"岗位","gǎngwèi","vị trí công việc"],[5,"尽力","jìnlì","cố gắng hết sức"],[5,"业务","yèwù","nghiệp vụ"],[5,"营业","yíngyè","kinh doanh, mở cửa"],[5,"利润","lìrùn","lợi nhuận"],[5,"宣传","xuānchuán","quảng bá"],[5,"投资","tóuzī","đầu tư"],[5,"客户","kèhù","khách hàng"],[5,"效率","xiàolǜ","hiệu suất"],[5,"合作","hézuò","hợp tác"]
+].forEach(([lv,h,py,vi])=>window.ZH_POOL.push({h,py,vi,lv}));
