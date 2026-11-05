@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiểm tra đầu vào</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f9fd; --surface:#ffffff; --ink:#1f2a37; --muted:#6b7a8c;
+  --blue:#8fb8de; --blue-strong:#4f8fc9; --blue-soft:#e3eef9; --blue-line:#cfe0f2;
+  --ok:#2f9e6e; --ok-soft:#e3f5ec; --bad:#d0566b; --bad-soft:#fbe8ec;
+  --radius:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1722; --surface:#172231; --ink:#e6edf5; --muted:#93a3b6;
+    --blue:#5d8fbf; --blue-strong:#8fbbe6; --blue-soft:#1d2d40; --blue-line:#2a3d55;
+    --ok:#5cc79a; --ok-soft:#173528; --bad:#ef8a9c; --bad-soft:#3a1d25;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1722; --surface:#172231; --ink:#e6edf5; --muted:#93a3b6;
+  --blue:#5d8fbf; --blue-strong:#8fbbe6; --blue-soft:#1d2d40; --blue-line:#2a3d55;
+  --ok:#5cc79a; --ok-soft:#173528; --bad:#ef8a9c; --bad-soft:#3a1d25;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+.zh{font-family:"Noto Sans SC","PingFang SC",sans-serif}
+.hero{position:relative;overflow:hidden;padding:44px 16px 64px;background:linear-gradient(180deg,var(--blue-soft),var(--bg))}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:999px;border:22px solid var(--blue);opacity:.35;filter:blur(1px)}
+.hero::before{width:420px;height:420px;left:-180px;top:-200px}
+.hero::after{width:360px;height:360px;right:-150px;top:-120px}
+.wrap{max-width:720px;margin:0 auto;position:relative}
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--blue-line);color:var(--blue-strong);font-weight:600;font-size:13px;padding:6px 12px;border-radius:999px}
+h1{font-size:clamp(28px,6vw,40px);line-height:1.2;margin:16px 0 8px;letter-spacing:-.01em}
+.lead{color:var(--muted);margin:0;max-width:560px}
+.tabs{display:flex;gap:8px;margin:-32px auto 0;max-width:720px;padding:0 16px;position:relative;z-index:2}
+.tab{flex:1;border:1px solid var(--blue-line);background:var(--surface);color:var(--ink);font:inherit;font-weight:600;padding:14px 12px;border-radius:14px;cursor:pointer;transition:.2s}
+.tab[aria-selected="true"]{background:var(--blue-strong);border-color:var(--blue-strong);color:#fff;box-shadow:0 8px 20px -10px var(--blue-strong)}
+main{max-width:720px;margin:0 auto;padding:20px 16px 80px}
+.panel{display:none}.panel.active{display:block}
+.intro{background:var(--surface);border:1px solid var(--blue-line);border-radius:var(--radius);padding:18px 18px;margin-bottom:18px;color:var(--muted);font-size:15px}
+.intro b{color:var(--ink)}
+.section-title{display:flex;align-items:center;gap:10px;margin:28px 4px 12px;font-size:15px;font-weight:700;color:var(--blue-strong);text-transform:uppercase;letter-spacing:.06em}
+.section-title::after{content:"";flex:1;height:1px;background:var(--blue-line)}
+.q{background:var(--surface);border:1px solid var(--blue-line);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.q-head{display:flex;gap:12px;align-items:flex-start}
+.num{flex:none;width:30px;height:30px;border-radius:10px;background:var(--blue-soft);color:var(--blue-strong);display:grid;place-items:center;font-weight:700;font-size:14px}
+.prompt{font-weight:500;margin:3px 0 0}
+.prompt .zh{font-size:1.25em}
+.opts{display:grid;gap:8px;margin-top:14px}
+.opt{display:flex;align-items:center;gap:12px;border:1.5px solid var(--blue-line);border-radius:12px;padding:12px 14px;cursor:pointer;transition:.15s;background:transparent}
+.opt:hover{border-color:var(--blue)}
+.opt input{accent-color:var(--blue-strong);width:18px;height:18px;flex:none;margin:0}
+.opt.picked{border-color:var(--blue-strong);background:var(--blue-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.listen{display:inline-flex;align-items:center;gap:8px;margin-top:12px;border:none;background:var(--blue-strong);color:#fff;font:inherit;font-weight:600;font-size:14px;padding:9px 14px;border-radius:999px;cursor:pointer}
+.listen svg{width:16px;height:16px}
+.hint{font-size:13px;color:var(--muted);margin-top:8px}
+.passage{background:var(--blue-soft);border-radius:14px;padding:16px;font-size:15px;margin-bottom:14px}
+.passage p{margin:0 0 10px}.passage p:last-child{margin:0}
+.submit{display:block;width:100%;margin-top:22px;border:none;background:var(--blue-strong);color:#fff;font:inherit;font-weight:700;font-size:16px;padding:16px;border-radius:14px;cursor:pointer;box-shadow:0 10px 24px -12px var(--blue-strong)}
+.ghost{background:var(--surface);color:var(--blue-strong);border:1.5px solid var(--blue-strong);box-shadow:none}
+.result{display:none;background:var(--surface);border:1.5px solid var(--blue-strong);border-radius:var(--radius);padding:22px;margin-top:22px}
+.result.show{display:block}
+.result h3{margin:0 0 4px;font-size:22px}
+.score{font-size:44px;font-weight:700;color:var(--blue-strong);line-height:1.1;margin:10px 0}
+.result ul{padding-left:20px;margin:10px 0 0;color:var(--muted)}
+.result li{margin-bottom:4px}
+.note{font-size:13px;color:var(--muted);margin-top:12px}
+.skip{margin-top:10px}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="badge" href="./" style="text-decoration:none">‹ Về trang chủ</a> <span class="badge">Bài kiểm tra đầu vào</span>
+    <h1>Chào KC, mình xem KC đang ở đâu nhé</h1>
+    <p class="lead">Làm thật lòng, không tra cứu. Câu nào không biết thì chọn đại hoặc bỏ trống, để lộ trình 30 ngày vừa sức với KC.</p>
+  </div>
+</header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-tab="en">Tiếng Anh · IELTS</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="zh">Tiếng Trung · <span class="zh">中文</span></button>
+</div>
+
+<main>
+  <!-- ENGLISH -->
+  <section class="panel active" id="panel-en">
+    <div class="intro"><b>20 câu, khoảng 15 phút.</b> Gồm ngữ pháp và từ vựng, đọc hiểu, nghe. Phần Viết và Nói của IELTS sẽ được đánh giá riêng trong tuần đầu học.</div>
+    <div id="en-qs"></div>
+    <button class="submit" id="en-submit">Chấm điểm tiếng Anh</button>
+    <div class="result" id="en-result"></div>
+  </section>
+
+  <!-- CHINESE -->
+  <section class="panel" id="panel-zh">
+    <div class="intro"><b>13 câu, khoảng 10 phút.</b> Gồm nghĩa từ, pinyin, thanh điệu, câu giao tiếp, nghe và chữ Hán.
+      <button class="submit ghost skip" id="zh-skip">KC chưa học tiếng Trung, bắt đầu từ con số 0</button>
+    </div>
+    <div id="zh-qs"></div>
+    <button class="submit" id="zh-submit">Chấm điểm tiếng Trung</button>
+    <div class="result" id="zh-result"></div>
+  </section>
+</main>
+<footer>Kim Cun world · Học mỗi ngày một chút</footer>
+
+<script>
+const SPEAKER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
+
+const EN=[
+ {sec:"Ngữ pháp và từ vựng"},
+ {lv:"A2",q:"She ___ to work by bus every day.",o:["go","goes","going","is go"],a:1},
+ {lv:"A2",q:"We have run out ___ milk. Can you buy some?",o:["of","from","with","off"],a:0},
+ {lv:"B1",q:"If the supplier ___ late again, we will change to another one.",o:["will be","is","was","would be"],a:1},
+ {lv:"B1",q:"The new menu ___ by the head chef last week.",o:["designed","was designed","has designed","is designing"],a:1},
+ {lv:"B1",q:"The restaurant had to ___ the outdoor event because of the heavy rain.",o:["cancel","refuse","prevent","avoid"],a:0},
+ {lv:"B2",q:"By the time the guests arrived, the staff ___ all the tables.",o:["set","have set","had set","were set"],a:2},
+ {lv:"B2",q:"Our campaign was successful ___ the limited budget.",o:["although","despite","however","because"],a:1},
+ {lv:"B2",q:"The main aim of this campaign is to raise brand ___.",o:["awareness","attention","knowledge","recognize"],a:0},
+ {lv:"B2",q:"I wish I ___ more time to prepare the presentation yesterday.",o:["had","had had","have had","would have"],a:1},
+ {lv:"C1",q:"Not only ___ the sales target, but they also doubled last year's revenue.",o:["they met","did they meet","they did meet","met they"],a:1},
+ {lv:"C1",q:"The chart shows a ___ increase in sales, which rose by almost 40 percent in one month.",o:["sharp","slight","steady","minor"],a:0},
+ {lv:"C1",q:"Had the manager known about the complaint, she ___ it immediately.",o:["would handle","would have handled","will have handled","had handled"],a:1},
+ {sec:"Đọc hiểu",passage:[
+  "Small cafés in large cities face strong competition. Three years ago, a café in District 3 decided to stop paying for newspaper advertisements and focus entirely on short videos filmed by its own staff. The videos showed how drinks were made, introduced regular customers and occasionally featured small mistakes behind the counter.",
+  "At first, the owner worried that showing mistakes would damage the café's image. In fact, the opposite happened: followers said the videos made the café feel honest and friendly. Within a year, weekday sales had risen by around a quarter.",
+  "However, the owner admits that the strategy demands time. Two employees now spend several hours each week filming and editing, and not every video attracts attention."]},
+ {lv:"B1",q:"What did the café stop doing three years ago?",o:["Hiring new staff","Paying for newspaper advertisements","Filming short videos","Serving regular customers"],a:1},
+ {lv:"B2",q:"TRUE, FALSE or NOT GIVEN: The owner was initially concerned about showing mistakes.",o:["TRUE","FALSE","NOT GIVEN"],a:0},
+ {lv:"C1",q:"TRUE, FALSE or NOT GIVEN: The café's weekend sales doubled.",o:["TRUE","FALSE","NOT GIVEN"],a:2},
+ {lv:"B2",q:"What disadvantage of the strategy is mentioned?",o:["It is expensive to buy equipment","It takes a lot of staff time","Customers dislike the videos","Sales fell on weekdays"],a:1},
+ {sec:"Nghe"},
+ {lv:"B1",say:"The meeting has been moved from Tuesday to Thursday, at half past two.",q:"When is the meeting now?",o:["Tuesday at 2:30","Thursday at 2:30","Thursday at 2:00","Tuesday at 3:30"],a:1},
+ {lv:"B1",say:"For the party, we need fifteen bottles of orange juice, not fifty.",q:"How many bottles do they need?",o:["5","15","50","55"],a:1},
+ {lv:"B2",say:"Could you spell your surname, please? Yes, it's H, A, R, R, I, S.",q:"What is the surname?",o:["Haris","Harries","Harris","Herris"],a:2},
+ {lv:"C1",say:"Although the venue was beautiful, most guests complained that the food arrived cold.",q:"What were most guests unhappy about?",o:["The venue","The cold food","The price","The music"],a:1}
+];
+
+const ZH=[
+ {sec:"Nền tảng"},
+ {lv:1,q:'<span class="zh">你好</span> nghĩa là gì?',o:["Xin chào","Cảm ơn","Tạm biệt","Xin lỗi"],a:0},
+ {lv:1,q:'Pinyin đúng của <span class="zh">谢谢</span> (cảm ơn) là:',o:["xièxie","xiàxia","shèshe","jièjie"],a:0},
+ {lv:1,q:"Chữ mā có dấu ngang phía trên là thanh mấy?",o:["Thanh 1: cao và đều","Thanh 2: đi lên","Thanh 3: xuống rồi lên","Thanh 4: đi xuống mạnh"],a:0},
+ {lv:1,q:'<span class="zh">十五</span> là số mấy?',o:["5","15","50","105"],a:1},
+ {lv:1,q:'Chữ <span class="zh">人</span> (người) có mấy nét?',o:["1 nét","2 nét","3 nét","4 nét"],a:1},
+ {sec:"Giao tiếp"},
+ {lv:1,q:"Muốn hỏi “Cái này bao nhiêu tiền?”, nói câu nào?",o:['<span class="zh">这个多少钱？</span>','<span class="zh">这个是什么？</span>','<span class="zh">你去哪儿？</span>','<span class="zh">现在几点？</span>'],a:0},
+ {lv:1,say:"我要一杯咖啡。",q:"Người nói muốn gì?",o:["Một ly cà phê","Một ly trà","Không uống cà phê","Hỏi giá cà phê"],a:0},
+ {lv:2,q:'Điền lượng từ: <span class="zh">一___书</span> (một quyển sách)',o:['<span class="zh">本</span>','<span class="zh">杯</span>','<span class="zh">只</span>','<span class="zh">件</span>'],a:0},
+ {lv:2,q:"Câu nào đúng trật tự cho “Tôi làm việc ở nhà hàng”?",o:['<span class="zh">我在饭馆工作。</span>','<span class="zh">我工作在饭馆。</span>','<span class="zh">饭馆我在工作。</span>','<span class="zh">在工作我饭馆。</span>'],a:0},
+ {lv:2,q:'<span class="zh">他比我高。</span> nghĩa là gì?',o:["Anh ấy cao hơn tôi","Tôi cao hơn anh ấy","Anh ấy cao bằng tôi","Anh ấy không cao"],a:0},
+ {lv:2,say:"服务员，买单。",q:"Người nói đang làm gì?",o:["Gọi món","Gọi tính tiền","Hỏi nhà vệ sinh","Đặt bàn"],a:1},
+ {sec:"Nâng cao"},
+ {lv:3,q:'<span class="zh">我把菜单放在桌子上了。</span> nghĩa là gì?',o:["Tôi đã đặt thực đơn lên bàn rồi","Tôi đang tìm thực đơn trên bàn","Thực đơn không có trên bàn","Tôi muốn xem thực đơn"],a:0},
+ {lv:3,q:'Điền vào chỗ trống: <span class="zh">这家店的咖啡___好喝___便宜。</span> (vừa ngon vừa rẻ)',o:['<span class="zh">又…又…</span>','<span class="zh">因为…所以…</span>','<span class="zh">如果…就…</span>','<span class="zh">不但…而且没…</span>'],a:0}
+];
+
+function speak(text,lang){
+  if(!("speechSynthesis" in window)){alert("Thiết bị này chưa hỗ trợ đọc to.");return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=lang; u.rate=lang.startsWith("zh")?0.8:0.9;
+  const v=speechSynthesis.getVoices().find(v=>v.lang.replace("_","-").startsWith(lang));
+  if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+
+function render(list,el,key,lang){
+  let n=0,html="";
+  list.forEach((it,i)=>{
+    if(it.sec){
+      html+=`<div class="section-title">${it.sec}</div>`;
+      if(it.passage)html+=`<div class="passage">${it.passage.map(p=>`<p>${p}</p>`).join("")}</div>`;
+      return;
+    }
+    n++;
+    const audio=it.say?`<button class="listen" type="button" data-say="${it.say}" data-lang="${lang}">${SPEAKER} Nghe</button><div class="hint">Bấm nghe tối đa 2 lần.</div>`:"";
+    html+=`<div class="q" data-i="${i}"><div class="q-head"><span class="num">${n}</span><div><p class="prompt">${it.q}</p>${audio}</div></div><div class="opts">`+
+      it.o.map((o,j)=>`<label class="opt"><input type="radio" name="${key}${i}" value="${j}"><span>${o}</span></label>`).join("")+`</div></div>`;
+  });
+  el.innerHTML=html;
+}
+render(EN,document.getElementById("en-qs"),"en","en-GB");
+render(ZH,document.getElementById("zh-qs"),"zh","zh-CN");
+
+document.addEventListener("change",e=>{
+  if(e.target.type!=="radio")return;
+  e.target.closest(".opts").querySelectorAll(".opt").forEach(l=>l.classList.toggle("picked",l.contains(e.target)));
+});
+document.addEventListener("click",e=>{
+  const b=e.target.closest(".listen"); if(b)speak(b.dataset.say,b.dataset.lang);
+});
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+t.dataset.tab));
+}));
+
+function grade(list,key){
+  const res=[];
+  list.forEach((it,i)=>{
+    if(it.sec)return;
+    const pick=document.querySelector(`input[name="${key}${i}"]:checked`);
+    const val=pick?+pick.value:-1, ok=val===it.a;
+    res.push({lv:it.lv,ok});
+    const q=document.querySelector(`#${key}-qs .q[data-i="${i}"]`);
+    q.querySelectorAll(".opt").forEach((l,j)=>{
+      l.classList.remove("picked","right","wrong");
+      if(j===it.a)l.classList.add("right"); else if(j===val)l.classList.add("wrong");
+    });
+  });
+  return res;
+}
+
+document.getElementById("en-submit").onclick=()=>{
+  const r=grade(EN,"en"), s=r.filter(x=>x.ok).length;
+  const byLv={};r.forEach(x=>{byLv[x.lv]=byLv[x.lv]||[0,0];byLv[x.lv][1]++;if(x.ok)byLv[x.lv][0]++;});
+  let lvl,band;
+  if(s<=6){lvl="A2";band="khoảng 3.5 đến 4.5";}
+  else if(s<=11){lvl="B1";band="khoảng 4.5 đến 5.5";}
+  else if(s<=15){lvl="B2";band="khoảng 5.5 đến 6.5";}
+  else if(s<=18){lvl="B2+ / C1";band="khoảng 6.5 đến 7.0";}
+  else{lvl="C1";band="khoảng 7.0 trở lên";}
+  const el=document.getElementById("en-result");
+  el.innerHTML=`<h3>Kết quả tiếng Anh</h3><div class="score">${s}/20</div>
+   <p>Trình độ ước tính: <b>${lvl}</b>, tương đương IELTS Reading và Listening <b>${band}</b>. Mục tiêu của KC là 7.5.</p>
+   <ul>${Object.entries(byLv).map(([k,v])=>`<li>Câu mức ${k}: đúng ${v[0]}/${v[1]}</li>`).join("")}</ul>
+   <button class="submit ghost" id="en-copy">Sao chép kết quả gửi cho Claude</button>
+   <p class="note">Đây là ước lượng nhanh, chưa có Viết và Nói. Đáp án đúng đã được tô xanh ở từng câu.</p>`;
+  el.classList.add("show");
+  document.getElementById("en-copy").onclick=()=>copy(`Kết quả tiếng Anh: ${s}/20, trình độ ${lvl}, IELTS ước tính ${band}. Chi tiết: `+Object.entries(byLv).map(([k,v])=>`${k} ${v[0]}/${v[1]}`).join(", "));
+  el.scrollIntoView({behavior:"smooth"});
+};
+
+function zhResult(level,detail){
+  const el=document.getElementById("zh-result");
+  const map={0:["Bắt đầu từ con số 0","Học pinyin, 4 thanh điệu, nét cơ bản của chữ Hán và câu chào hỏi."],
+    1:["Mức HSK1","Đã có nền tảng, củng cố phát âm và học tiếp mẫu câu HSK2."],
+    2:["Mức HSK2","Giao tiếp cơ bản ổn, học tiếp cấu trúc HSK3 và hội thoại công việc."],
+    3:["Mức HSK3 trở lên","Có thể học hội thoại F&B và marketing dài hơn, kèm viết đoạn ngắn."]};
+  el.innerHTML=`<h3>Kết quả tiếng Trung</h3><div class="score" style="font-size:30px">${map[level][0]}</div><p>${map[level][1]}</p>${detail}
+   <button class="submit ghost" id="zh-copy">Sao chép kết quả gửi cho Claude</button>`;
+  el.classList.add("show");
+  document.getElementById("zh-copy").onclick=()=>copy(`Kết quả tiếng Trung: ${map[level][0]}. `+el.dataset.raw);
+  el.scrollIntoView({behavior:"smooth"});
+}
+document.getElementById("zh-submit").onclick=()=>{
+  const r=grade(ZH,"zh");
+  const c=l=>r.filter(x=>x.lv===l&&x.ok).length, t=l=>r.filter(x=>x.lv===l).length;
+  const h1=c(1),h2=c(2),h3=c(3);
+  let level=0; if(h1>=5){level=1; if(h2>=3){level=2; if(h3>=2)level=3;}}
+  const raw=`HSK1 ${h1}/${t(1)}, HSK2 ${h2}/${t(2)}, HSK3 ${h3}/${t(3)}`;
+  document.getElementById("zh-result").dataset.raw=raw;
+  zhResult(level,`<ul><li>Câu mức HSK1: đúng ${h1}/${t(1)}</li><li>Câu mức HSK2: đúng ${h2}/${t(2)}</li><li>Câu mức HSK3: đúng ${h3}/${t(3)}</li></ul>`);
+};
+document.getElementById("zh-skip").onclick=()=>{
+  document.getElementById("zh-result").dataset.raw="KC chưa học tiếng Trung.";
+  zhResult(0,"");
+};
+
+function copy(text){
+  const done=()=>alert("Đã sao chép. KC dán vào chat với Claude nhé.");
+  if(navigator.clipboard)navigator.clipboard.writeText(text).then(done,()=>prompt("Sao chép đoạn này:",text));
+  else prompt("Sao chép đoạn này:",text);
+}
+if("speechSynthesis" in window)speechSynthesis.getVoices();
+</script>
+</body>
+</html>

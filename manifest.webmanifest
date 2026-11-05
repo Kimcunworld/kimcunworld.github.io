@@ -1,0 +1,16 @@
+{
+  "name": "Kim Cun học đi",
+  "short_name": "Học đi",
+  "description": "Mỗi ngày 30 phút tiếng Anh IELTS và tiếng Trung",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f8fc",
+  "theme_color": "#e3eef9",
+  "lang": "vi",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
