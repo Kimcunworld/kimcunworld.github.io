@@ -1,5 +1,5 @@
-const CACHE = "kc-hoc-di-v2";
-const SHELL = ["./","index.html","styles.css","app.js","en.js","zh.js","mock.js","test.html","manifest.webmanifest","./icon-192.png"];
+const CACHE = "kc-world-v3";
+const SHELL = ["./","index.html","styles.css","app.js","en.js","zh.js","mock.js","mascots.js","pool.js","test.html","manifest.webmanifest","./icon-192.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))); self.clients.claim(); });
 self.addEventListener("fetch", e => {
