@@ -79,7 +79,7 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
 <body>
 <header class="hero">
   <div class="wrap">
-    <a class="badge" href="./" style="text-decoration:none">‹ Về trang chủ</a> <span class="badge">Bài kiểm tra đầu vào</span> <a class="badge" href="./#/profiles/new" style="text-decoration:none">Tạo hồ sơ ›</a>
+    <a class="badge" href="./" style="text-decoration:none">‹ Về trang chủ</a> <span class="badge">Bài kiểm tra đầu vào</span> 
     <h1>Mình xem bạn đang ở trình độ nào nhé</h1>
     <p class="lead">Làm thật lòng, không tra cứu. Câu nào không biết thì chọn đại hoặc bỏ trống, để chọn cấp độ vừa sức.</p>
   </div>
@@ -93,7 +93,8 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
 <main>
   <!-- ENGLISH -->
   <section class="panel active" id="panel-en">
-    <div class="intro"><b>20 câu, khoảng 15 phút.</b> Gồm ngữ pháp và từ vựng, đọc hiểu, nghe. Phần Viết và Nói của IELTS sẽ được đánh giá riêng trong tuần đầu học.</div>
+    <div class="intro"><b>27 câu, khoảng 15 phút.</b> Câu dễ ở đầu, khó dần về sau. Gồm ngữ pháp và từ vựng, đọc hiểu, nghe.
+      <button class="submit ghost skip" id="en-skip">Mình chưa học tiếng Anh, bắt đầu từ đầu</button></div>
     <div id="en-qs"></div>
     <button class="submit" id="en-submit">Chấm điểm tiếng Anh</button>
     <div class="result" id="en-result"></div>
@@ -102,7 +103,7 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
   <!-- CHINESE -->
   <section class="panel" id="panel-zh">
     <div class="intro"><b>13 câu, khoảng 10 phút.</b> Gồm nghĩa từ, pinyin, thanh điệu, câu giao tiếp, nghe và chữ Hán.
-      <button class="submit ghost skip" id="zh-skip">KC chưa học tiếng Trung, bắt đầu từ con số 0</button>
+      <button class="submit ghost skip" id="zh-skip">Mình chưa học tiếng Trung, bắt đầu từ con số 0</button>
     </div>
     <div id="zh-qs"></div>
     <button class="submit" id="zh-submit">Chấm điểm tiếng Trung</button>
@@ -115,6 +116,14 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
 const SPEAKER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
 
 const EN=[
+ {sec:"Cơ bản"},
+ {lv:"A1",q:"I ___ a waiter at a small café.",o:["am","is","are","be"],a:0},
+ {lv:"A1",q:"They ___ from Vietnam.",o:["is","am","are","be"],a:2},
+ {lv:"A1",q:"___ you like tea?",o:["Do","Does","Are","Is"],a:0},
+ {lv:"A1",q:"There ___ two cups on the table.",o:["is","are","am","be"],a:1},
+ {lv:"A1",q:"Yesterday I ___ to the market.",o:["go","went","goes","going"],a:1},
+ {lv:"A1",q:"Trong nhà hàng, từ nào nghĩa là “hóa đơn”?",o:["bill","menu","table","spoon"],a:0},
+ {lv:"A1",say:"Hello, my name is Anna. I am twenty-five years old.",q:"Anna bao nhiêu tuổi?",o:["15","20","25","35"],a:2},
  {sec:"Ngữ pháp và từ vựng"},
  {lv:"A2",q:"She ___ to work by bus every day.",o:["go","goes","going","is go"],a:1},
  {lv:"A2",q:"We have run out ___ milk. Can you buy some?",o:["of","from","with","off"],a:0},
@@ -222,32 +231,33 @@ document.getElementById("en-submit").onclick=()=>{
   const r=grade(EN,"en"), s=r.filter(x=>x.ok).length;
   const byLv={};r.forEach(x=>{byLv[x.lv]=byLv[x.lv]||[0,0];byLv[x.lv][1]++;if(x.ok)byLv[x.lv][0]++;});
   let lvl,band;
-  if(s<=6){lvl="A2";band="khoảng 3.5 đến 4.5";}
-  else if(s<=11){lvl="B1";band="khoảng 4.5 đến 5.5";}
-  else if(s<=15){lvl="B2";band="khoảng 5.5 đến 6.5";}
-  else if(s<=18){lvl="B2+ / C1";band="khoảng 6.5 đến 7.0";}
+  if(s<=6){lvl="A1";band="dưới 3.5";}
+  else if(s<=10){lvl="A2";band="khoảng 3.5 đến 4.5";}
+  else if(s<=15){lvl="B1";band="khoảng 4.5 đến 5.5";}
+  else if(s<=20){lvl="B2";band="khoảng 5.5 đến 6.5";}
+  else if(s<=24){lvl="B2 đến C1";band="khoảng 6.5 đến 7.0";}
   else{lvl="C1";band="khoảng 7.0 trở lên";}
-  const lvn=s<=6?1:s<=11?2:s<=15?3:s<=18?4:5;try{const o=JSON.parse(localStorage.getItem("kc-world-testlv")||"{}");o.en=lvn;localStorage.setItem("kc-world-testlv",JSON.stringify(o));}catch(e){}
+  const lvn=s<=10?1:s<=15?2:s<=20?3:s<=24?4:5;saveLv("en",lvn);
   const el=document.getElementById("en-result");
-  el.innerHTML=`<h3>Kết quả tiếng Anh</h3><div class="score">${s}/20</div>
-   <p>Trình độ ước tính: <b>${lvl}</b>, tương đương IELTS Reading và Listening <b>${band}</b>.</p><p>Gợi ý cấp độ luyện tập: <b>Band ${["4.5","5.5","6.5","7.5","8.0"][lvn-1]}</b> (đã lưu, sẽ tự điền khi tạo hồ sơ).</p>
+  el.innerHTML=`<h3>Kết quả tiếng Anh</h3><div class="score">${s}/${r.length}</div>
+   <p>Trình độ ước tính: <b>${lvl}</b>, tương đương IELTS Reading và Listening <b>${band}</b>.</p><p>Gợi ý cấp độ luyện tập: <b>Band ${["4.5","5.5","6.5","7.5","8.0"][lvn-1]}</b> (đã lưu vào hồ sơ).</p>${goBtn("en")}
    <ul>${Object.entries(byLv).map(([k,v])=>`<li>Câu mức ${k}: đúng ${v[0]}/${v[1]}</li>`).join("")}</ul>
    <button class="submit ghost" id="en-copy">Sao chép kết quả gửi cho Claude</button>
    <p class="note">Đây là ước lượng nhanh, chưa có Viết và Nói. Đáp án đúng đã được tô xanh ở từng câu.</p>`;
   el.classList.add("show");
-  document.getElementById("en-copy").onclick=()=>copy(`Kết quả tiếng Anh: ${s}/20, trình độ ${lvl}, IELTS ước tính ${band}. Chi tiết: `+Object.entries(byLv).map(([k,v])=>`${k} ${v[0]}/${v[1]}`).join(", "));
+  document.getElementById("en-copy").onclick=()=>copy(`Kết quả tiếng Anh: ${s}/${r.length}, trình độ ${lvl}, IELTS ước tính ${band}. Chi tiết: `+Object.entries(byLv).map(([k,v])=>`${k} ${v[0]}/${v[1]}`).join(", "));
   el.scrollIntoView({behavior:"smooth"});
 };
 
 function zhResult(level,detail){
-  try{const o=JSON.parse(localStorage.getItem("kc-world-testlv")||"{}");o.zh=Math.min(5,level+1);localStorage.setItem("kc-world-testlv",JSON.stringify(o));}catch(e){}
+  saveLv("zh",Math.min(5,level+1));
   const el=document.getElementById("zh-result");
   const map={0:["Bắt đầu từ con số 0","Học pinyin, 4 thanh điệu, nét cơ bản của chữ Hán và câu chào hỏi."],
     1:["Mức HSK1","Đã có nền tảng, củng cố phát âm và học tiếp mẫu câu HSK2."],
     2:["Mức HSK2","Giao tiếp cơ bản ổn, học tiếp cấu trúc HSK3 và hội thoại công việc."],
     3:["Mức HSK3 trở lên","Có thể học hội thoại F&B và marketing dài hơn, kèm viết đoạn ngắn."]};
   el.innerHTML=`<h3>Kết quả tiếng Trung</h3><div class="score" style="font-size:30px">${map[level][0]}</div><p>${map[level][1]}</p>${detail}
-   <p>Gợi ý cấp độ luyện tập: <b>HSK${Math.min(5,level+1)}</b> (đã lưu, sẽ tự điền khi tạo hồ sơ).</p><button class="submit ghost" id="zh-copy">Sao chép kết quả gửi cho Claude</button>`;
+   <p>Gợi ý cấp độ luyện tập: <b>HSK${Math.min(5,level+1)}</b> (đã lưu vào hồ sơ).</p>${goBtn("zh")}<button class="submit ghost" id="zh-copy">Sao chép kết quả gửi cho Claude</button>`;
   el.classList.add("show");
   document.getElementById("zh-copy").onclick=()=>copy(`Kết quả tiếng Trung: ${map[level][0]}. `+el.dataset.raw);
   el.scrollIntoView({behavior:"smooth"});
@@ -262,12 +272,27 @@ document.getElementById("zh-submit").onclick=()=>{
   zhResult(level,`<ul><li>Câu mức HSK1: đúng ${h1}/${t(1)}</li><li>Câu mức HSK2: đúng ${h2}/${t(2)}</li><li>Câu mức HSK3: đúng ${h3}/${t(3)}</li></ul>`);
 };
 document.getElementById("zh-skip").onclick=()=>{
-  document.getElementById("zh-result").dataset.raw="KC chưa học tiếng Trung.";
+  document.getElementById("zh-result").dataset.raw="Chưa học tiếng Trung.";
   zhResult(0,"");
 };
 
+document.getElementById("en-skip").onclick=()=>{
+  saveLv("en",1);const el=document.getElementById("en-result");
+  el.innerHTML=`<h3>Bắt đầu từ đầu</h3><p>Lộ trình sẽ đi từ phát âm và ngữ pháp cơ bản, mỗi ngày 6 từ mới.</p>${goBtn("en")}`;
+  el.classList.add("show");el.scrollIntoView({behavior:"smooth"});
+};
+/* Ghi cấp độ vào hồ sơ đang học và đánh dấu đã làm bài kiểm tra */
+function saveLv(m,lv){
+  try{const o=JSON.parse(localStorage.getItem("kc-world-testlv")||"{}");o[m]=lv;localStorage.setItem("kc-world-testlv",JSON.stringify(o));}catch(e){}
+  try{const list=JSON.parse(localStorage.getItem("kc-world-profiles")||"[]"),cur=localStorage.getItem("kc-world-current")||"KC";
+    const p=list.find(x=>x.id===cur);if(p){p.lv=Object.assign({},p.lv,{[m]:lv});p.test=Object.assign({},p.test,{[m]:new Date().toISOString().slice(0,10)});localStorage.setItem("kc-world-profiles",JSON.stringify(list));}}catch(e){}
+}
+function goBtn(m){return `<a class="submit" href="./#/${m}" style="text-align:center;text-decoration:none">Vào học ${m==="en"?"tiếng Anh":"tiếng Trung"}</a>`;}
+/* Mở từ web: chỉ hiện môn được chọn */
+(function(){const m=new URLSearchParams(location.search).get("m");if(m==="en"||m==="zh"){document.querySelector(".tabs").style.display="none";document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+m));}})();
+
 function copy(text){
-  const done=()=>alert("Đã sao chép. KC dán vào chat với Claude nhé.");
+  const done=()=>alert("Đã sao chép kết quả.");
   if(navigator.clipboard)navigator.clipboard.writeText(text).then(done,()=>prompt("Sao chép đoạn này:",text));
   else prompt("Sao chép đoạn này:",text);
 }

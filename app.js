@@ -67,6 +67,9 @@ const NAME=P.name;
 function saveProfiles(){try{localStorage.setItem(PROFILES,JSON.stringify(PROFS));localStorage.setItem(CURP,P.id);}catch(e){}}
 saveProfiles();nameFix();
 const pkey=k=>P.owner?k:k+":"+P.id;
+const initial=n=>(String(n||"K").trim().charAt(0)||"K").toUpperCase();
+/* Bài kiểm tra đầu vào: hồ sơ chưa làm bài của môn nào thì phải làm trước khi học môn đó. Hồ sơ chủ đã chốt cấp nên bỏ qua. */
+const needTest=m=>!P.owner&&!((P.test||{})[m]);
 
 /* ---------- Lưu trữ ---------- */
 const CUR=2;
@@ -226,6 +229,7 @@ function route(soft){
   if(MODES[p[0]]){
     MODE=p[0];document.body.dataset.mode=MODE;
     const sec=p[1]||"home";
+    if(needTest(MODE))return renderTestGate(MODE);
     if(sec==="learn")return openLesson(MODE,p[2]);
     if(sec==="mock")return openMock(p[2]);
     if(sec==="review")return openReview(MODE);
@@ -265,7 +269,7 @@ function renderLanding(){
   const card=m=>{const s=m==="en"?se:sz,Md=MODES[m],st=status(m);
     return `<a class="modecard ${m}" href="#/${m}">${mascot(Md.mascot,"mc")}<div class="mi"><div class="mt">${Md.name}</div><div class="ms">${P.owner?Md.sub:"Cấp "+lvName(m,P.lv[m])} · ${st.state==="doneToday"?"Đã học hôm nay":"Ngày "+st.day}</div></div><div class="mf">🔥 ${s.cur}<small>ngày</small></div></a>`;};
   app.innerHTML=`<header class="hero land"><div class="wrap">
-    <div class="landtop"><div><div class="logo"><span>K</span>Kim Cun world <a class="pchip" href="#/profiles">👤 ${esc(P.name)} · Đổi</a></div><h1>${greeting()}, ${esc(P.name)}</h1><p class="hello">Hôm nay học gì nào?</p></div>${mascot("co","wave big")}</div>
+    <div class="landtop"><div><div class="logo"><span>${esc(initial(P.name))}</span>Kim Cun world <a class="pchip" href="#/profiles">👤 ${esc(P.name)} · Đổi</a></div><h1>${greeting()}, ${esc(P.name)}</h1><p class="hello">Hôm nay học gì nào?</p></div>${mascot("co","wave big")}</div>
     <div class="stats"><div class="stc"><b>${xpOf().toLocaleString("vi-VN")}</b><span>Tổng điểm</span></div><div class="stc"><b>${knownCount()}</b><span>Từ đã thuộc</span></div><div class="stc"><b>${Object.keys(S.seen).length}</b><span>Huy hiệu</span></div></div>
   </div></header>
   <main class="wrap">
@@ -949,23 +953,87 @@ function openReflex(m,p){
   };
 }
 
+/* ---------- Bài kiểm tra đầu vào bắt buộc ---------- */
+function renderTestGate(m){
+  const Md=MODES[m],vn=Md.vn.replace("Tiếng","tiếng");tabbar.innerHTML="";tabbar.style.display="none";
+  app.innerHTML=`<div class="wrap"><div class="mhead"><a class="back" href="#/" aria-label="Trang chào">${I_BACK}</a><div class="mtitle"><span class="mb">${Md.badge}</span>${Md.name}</div><span></span></div>
+  <div class="greet">${mascot(Md.mascot,"idle")}<div class="bubble">Chào ${esc(P.name)}! Trước khi học ${vn}, mình làm bài kiểm tra đầu vào nhé.</div></div>
+  <div class="card prose"><p><b>Vì sao cần làm?</b> Kết quả giúp chọn cấp độ vừa sức cho phần Luyện tập. Bài làm khoảng 10 đến 15 phút, có câu nghe nên nhớ bật loa.</p>
+  <p class="small">Chưa học ${vn} bao giờ thì chọn “Mới bắt đầu”, khỏi phải làm bài.</p></div>
+  <a class="btn block" href="test.html?m=${m}">Làm bài kiểm tra ${vn}</a>
+  <button class="btn ghost block" data-tskip="${m}" style="margin-top:10px">Mới bắt đầu, học từ đầu luôn</button></div>`;
+}
+
+/* ---------- Mã chuyển máy ---------- */
+const XF_TAG="KCW1.";
+const b64e=u8=>{let s="";for(let i=0;i<u8.length;i+=8192)s+=String.fromCharCode.apply(null,u8.subarray(i,i+8192));return btoa(s);};
+const b64d=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function gz(u8,dir){const cs=dir?new CompressionStream("gzip"):new DecompressionStream("gzip");const out=new Response(new Blob([u8]).stream().pipeThrough(cs));return new Uint8Array(await out.arrayBuffer());}
+async function makeTransfer(){
+  const pack={v:1,p:{id:P.id,name:P.name,pin:P.pin||"",lv:P.lv,test:P.test||{},owner:!!P.owner},s:S,at:Date.now()};
+  const raw=new TextEncoder().encode(JSON.stringify(pack));
+  if(window.CompressionStream)return XF_TAG+"z"+b64e(await gz(raw,true));
+  return XF_TAG+"r"+b64e(raw);
+}
+async function readTransfer(code){
+  code=String(code||"").replace(/\s+/g,"");
+  if(!code.startsWith(XF_TAG))throw new Error("Mã không đúng định dạng");
+  const kind=code.charAt(XF_TAG.length),body=b64d(code.slice(XF_TAG.length+1));
+  const raw=kind==="z"?await gz(body,false):body;
+  const pack=JSON.parse(new TextDecoder().decode(raw));
+  if(!pack||!pack.p||!pack.s||!pack.s.done)throw new Error("Mã thiếu dữ liệu");
+  return pack;
+}
+function importTransfer(pack){
+  const src=pack.p;
+  let tgt=src.owner?PROFS.find(x=>x.owner):PROFS.find(x=>!x.owner&&x.id===src.id);
+  if(src.pin){const v=prompt("Nhập mã PIN của "+src.name);if(v!==src.pin){toast("Mã PIN chưa đúng");return false;}}
+  if(!tgt){tgt={id:src.id,name:src.name,pin:src.pin,lv:src.lv,test:src.test};PROFS.push(tgt);}
+  else{tgt.name=src.name;tgt.pin=src.pin;tgt.lv=Object.assign({},tgt.lv,src.lv);tgt.test=Object.assign({},tgt.test||{},src.test||{});}
+  const key=tgt.owner?STORE_BASE:STORE_BASE+":"+tgt.id;
+  let cur=null;try{cur=JSON.parse(localStorage.getItem(key));}catch(e){}
+  if(!cur||!cur.done)cur=blank();else cur=Object.assign(blank(),cur);
+  if(cur.cur!==CUR)resetCur(cur);
+  const merged=Sync.merge(cur,pack.s);merged.updated=Date.now();
+  try{localStorage.setItem(key,JSON.stringify(merged));}catch(e){toast("Máy hết chỗ lưu");return false;}
+  P=tgt;saveProfiles();return true;
+}
+function renderTransfer(sub){
+  const head=t=>`<div class="mhead"><a class="back" href="#/profiles">${I_BACK}</a><div class="mtitle">${t}</div><span></span></div>`;
+  if(sub==="export"){
+    app.innerHTML=`<div class="wrap">${head("Chuyển sang máy khác")}
+    <div class="card prose"><p>Mã này chứa toàn bộ tiến độ của <b>${esc(P.name)}</b> (ID ${esc(P.id)}).</p>
+    <ol class="steps"><li>Bấm <b>Sao chép mã</b> hoặc <b>Gửi mã</b> (qua Zalo, Messenger, email cho chính mình).</li><li>Trên máy mới, mở Kim Cun world, vào <b>Đổi hồ sơ</b>, chọn <b>Nhập mã từ máy khác</b>.</li><li>Dán mã và bấm <b>Nhập</b>.</li></ol>
+    <p class="small">Mã chỉ chụp lại tiến độ tại lúc này. Học tiếp ở máy nào thì lần sau chuyển mã từ máy đó.</p></div>
+    <textarea class="field xfcode" id="xfout" readonly rows="5">Đang tạo mã…</textarea>
+    <div class="btns"><button class="btn" data-xf="copy">Sao chép mã</button>${navigator.share?`<button class="btn ghost" data-xf="share">Gửi mã</button>`:""}</div></div>`;
+    makeTransfer().then(c=>{const t=document.getElementById("xfout");if(t)t.value=c;}).catch(()=>{const t=document.getElementById("xfout");if(t)t.value="Chưa tạo được mã trên trình duyệt này.";});
+    return;
+  }
+  app.innerHTML=`<div class="wrap">${head("Nhập mã từ máy khác")}
+  <div class="card prose"><p>Dán mã chuyển máy vào ô dưới. Nếu hồ sơ đã có trên máy này, tiến độ sẽ được gộp lại, không mất phần đã học.</p></div>
+  <textarea class="field xfcode" id="xfin" rows="5" placeholder="Dán mã bắt đầu bằng KCW1."></textarea>
+  <button class="btn block" data-xf="import">Nhập</button></div>`;
+}
+
 /* ---------- Hồ sơ ---------- */
 function renderProfiles(sub){
+  if(sub==="export"||sub==="import")return renderTransfer(sub);
   if(sub==="new"){
-    let tl={};try{tl=JSON.parse(localStorage.getItem("kc-world-testlv"))||{};}catch(e){}
     app.innerHTML=`<div class="wrap"><div class="mhead"><a class="back" href="#/profiles">${I_BACK}</a><div class="mtitle">Thêm người học</div><span></span></div>
     <div class="card"><label class="flab">Tên hiển thị</label><input class="field" id="pn" placeholder="Ví dụ: Lan" maxlength="20">
     <label class="flab">Mã ID (chữ và số, không dấu)</label><input class="field" id="pid" placeholder="Ví dụ: LAN01" maxlength="12" style="text-transform:uppercase">
     <label class="flab">Mã PIN 4 số (để trống nếu không cần)</label><input class="field" id="ppin" inputmode="numeric" maxlength="4" placeholder="••••">
-    <label class="flab">Cấp độ tiếng Anh</label><select class="field" id="plen">${LEVELS.en.map((t,i)=>`<option value="${i+1}" ${(tl.en||2)===i+1?"selected":""}>Band ${t}</option>`).join("")}</select>
-    <label class="flab">Cấp độ tiếng Trung</label><select class="field" id="plzh">${LEVELS.zh.map((t,i)=>`<option value="${i+1}" ${(tl.zh||1)===i+1?"selected":""}>${t}</option>`).join("")}</select>
-    <p class="small">Chưa biết cấp độ? Làm <a href="test.html">bài kiểm tra đầu vào</a> trước, kết quả sẽ tự điền vào đây.</p>
+    <p class="small">Cấp độ từng môn sẽ được chọn qua bài kiểm tra đầu vào khi vào học môn đó lần đầu.</p>
     <button class="btn block" data-pcreate="1">Tạo hồ sơ và bắt đầu</button></div></div>`;return;
   }
   app.innerHTML=`<div class="wrap"><div class="mhead"><a class="back" href="#/">${I_BACK}</a><div class="mtitle">Ai đang học?</div><span></span></div>
   ${PROFS.map(x=>`<div class="card prow pcard ${x.id===P.id?"cur":""}"><span class="pic">${x.owner?"👑":"👤"}</span><div class="meta"><b>${esc(x.name)}</b><div class="small">ID ${esc(x.id)} · ${lvName("en",x.lv.en)} · ${lvName("zh",x.lv.zh)}${x.pin?" · có PIN":""}</div></div>${x.id===P.id?'<span class="pill ok">Đang học</span>':`<button class="btn sm" data-puse="${esc(x.id)}">Vào học</button>`}${!x.owner&&x.id!==P.id?`<button class="btn ghost sm" data-pdel="${esc(x.id)}">Xóa</button>`:""}</div>`).join("")}
   <a class="btn block" href="#/profiles/new" style="margin-top:14px">＋ Thêm người học</a>
-  <p class="small">Mỗi hồ sơ lưu tiến độ riêng trên thiết bị này. Người học mới nên làm bài kiểm tra đầu vào để chọn cấp độ phù hợp.</p></div>`;
+  <div class="sec">Đổi máy</div>
+  <a class="card prow" href="#/profiles/export"><span class="pic">📤</span><div class="meta"><b>Chuyển hồ sơ ${esc(P.name)} sang máy khác</b><div class="small">Tạo mã chứa tiến độ để dán vào máy mới</div></div><span class="pill">Tạo mã</span></a>
+  <a class="card prow" href="#/profiles/import"><span class="pic">📥</span><div class="meta"><b>Nhập mã từ máy khác</b><div class="small">Đưa hồ sơ và tiến độ từ máy cũ sang máy này</div></div><span class="pill">Nhập</span></a>
+  <p class="small">Mỗi hồ sơ lưu tiến độ riêng trên thiết bị này. Đổi máy thì dùng mã chuyển máy ở trên.</p></div>`;
 }
 function switchProfile(id){
   const x=PROFS.find(p=>p.id===id);if(!x)return;
@@ -1007,14 +1075,14 @@ function renderProgress(m){
 function renderRoadmap(m){
   const Md=MODES[m];
   const rows=Md.plan.map(p=>{const d=S.done[m][p.day],has=Md.lessons.find(x=>x.day===p.day);return `<${d?"a":"div"} class="dl ${d?"done":""}" ${d?`href="#/${m}/learn/${p.day}"`:""}><span class="n">${p.day}</span><span class="tt"><span class="${m==="zh"?"zh":""}">${p.title}</span>${p.vi?` · ${p.vi}`:""}<br><span class="small">${p.book}</span></span>${d?`<span class="pill ok">${S.score[m+":"+p.day]!==undefined?S.score[m+":"+p.day]+"%":"Đã học"}</span>`:has?"":'<span class="pill lock">Đang soạn</span>'}</${d?"a":"div"}>`;}).join("");
-  app.innerHTML=`<div class="wrap">${modeHeader(m,"Lộ trình")}<p class="small">${m==="en"?"Học lại từ nền tảng: phát âm và ngữ pháp cơ bản, đối chiếu Essential Grammar in Use. Mỗi ngày 6 từ, khoảng 20 phút. Hết 30 ngày chuyển sang tiền trung cấp, sau đó vào sách Achieve IELTS.":"Học lại từ HSK1: pinyin, thanh điệu, bộ thủ và 3 chữ Hán mỗi ngày, khoảng 15 phút. Hết HSK1 sang HSK2, sau đó vào sách Luyện nói cấp tốc."}</p><div class="card">${rows}</div><a class="btn ghost block" href="test.html" style="margin-top:14px">Bài kiểm tra đầu vào</a></div>`;
+  app.innerHTML=`<div class="wrap">${modeHeader(m,"Lộ trình")}<p class="small">${m==="en"?"Học lại từ nền tảng: phát âm và ngữ pháp cơ bản, đối chiếu Essential Grammar in Use. Mỗi ngày 6 từ, khoảng 20 phút. Hết 30 ngày chuyển sang tiền trung cấp, sau đó vào sách Achieve IELTS.":"Học lại từ HSK1: pinyin, thanh điệu, bộ thủ và 3 chữ Hán mỗi ngày, khoảng 15 phút. Hết HSK1 sang HSK2, sau đó vào sách Luyện nói cấp tốc."}</p><div class="card">${rows}</div><a class="btn ghost block" href="test.html?m=${m}" style="margin-top:14px">Làm lại bài kiểm tra đầu vào</a></div>`;
 }
 
 /* ---------- Cài đặt ---------- */
 function renderSettings(){
   const c=syncCfg(),on=Sync.on(),last=Sync.last||(c.lastOk?"Lần đồng bộ gần nhất: "+new Date(c.lastOk).toLocaleString("vi-VN"):"");
   app.innerHTML=`<div class="wrap"><div class="mhead"><a class="back" href="#/">${I_BACK}</a><div class="mtitle">Cài đặt</div><span></span></div>
-  ${P.owner?"":`<div class="card small" style="margin-top:10px">Hồ sơ <b>${esc(P.name)}</b> lưu tiến độ trên thiết bị này. Đồng bộ qua GitHub chỉ dành cho chủ website.</div>`}
+  ${P.owner?"":`<div class="card small" style="margin-top:10px">Hồ sơ <b>${esc(P.name)}</b> lưu tiến độ trên thiết bị này. Đổi sang máy khác thì dùng <a href="#/profiles/export">mã chuyển máy</a>.</div>`}
   <div style="${P.owner?"":"display:none"}"><div class="sec">Đồng bộ giữa các thiết bị</div><div class="card"><div class="status ${on?"on":""}"><i></i>${on?"Đang bật đồng bộ":"Chưa bật đồng bộ"}</div>${last?`<p class="small">${last}</p>`:""}
     ${on?`<div class="btns left"><button class="btn" data-set="sync">Đồng bộ ngay</button><button class="btn ghost" data-set="off">Tắt trên máy này</button></div>`:`
     <p class="small">Tiến độ được lưu vào một ghi chú bí mật (Gist) trong tài khoản GitHub của KC. Mỗi thiết bị dán mã truy cập một lần.</p>
@@ -1061,11 +1129,18 @@ document.addEventListener("click",async e=>{
     if(e.target.closest("[data-lgame]")){lessonMatch(s);document.getElementById("gtime").textContent="0.0 giây";return;}
   }
   if(e.target.closest("[data-rxagain]")){openReflex("en",PRACTICE.en.find(x=>x.id==="phan-xa"));return;}
+  const ts=e.target.closest("[data-tskip]");if(ts){const m=ts.dataset.tskip;P.lv[m]=1;P.test=Object.assign({},P.test,{[m]:"start"});saveProfiles();route();toast("Bắt đầu từ bài đầu tiên nhé");return;}
+  const xf=e.target.closest("[data-xf]");if(xf){const k=xf.dataset.xf;
+    if(k==="copy"||k==="share"){const c=(document.getElementById("xfout")||{}).value||"";if(!c.startsWith(XF_TAG)){toast("Mã chưa tạo xong");return;}
+      if(k==="share"){try{await navigator.share({title:"Mã chuyển máy Kim Cun world",text:c});}catch(err){}return;}
+      try{await navigator.clipboard.writeText(c);toast("Đã sao chép mã");}catch(err){const t=document.getElementById("xfout");t.focus();t.select();toast("Giữ vào ô mã để sao chép");}return;}
+    if(k==="import"){const v=document.getElementById("xfin").value;xf.disabled=true;try{const pack=await readTransfer(v);if(importTransfer(pack)){toast("Đã nhập hồ sơ "+pack.p.name);location.hash="#/";location.reload();return;}}catch(err){toast("Mã chưa đúng, kiểm tra lại đã sao chép đủ chưa");}xf.disabled=false;}
+    return;}
   const pu=e.target.closest("[data-puse]");if(pu){switchProfile(pu.dataset.puse);return;}
   const pd=e.target.closest("[data-pdel]");if(pd){const x=PROFS.find(p=>p.id===pd.dataset.pdel);if(x&&confirm("Xóa hồ sơ "+x.name+" và toàn bộ tiến độ của hồ sơ này trên máy? Không thể hoàn tác.")){PROFS=PROFS.filter(p=>p!==x);try{localStorage.removeItem(STORE_BASE+":"+x.id);}catch(err){}saveProfiles();renderProfiles();toast("Đã xóa hồ sơ");}return;}
   if(e.target.closest("[data-pcreate]")){const name=document.getElementById("pn").value.trim(),id=document.getElementById("pid").value.trim().toUpperCase(),pin=document.getElementById("ppin").value.trim();
     if(!name){toast("Nhập tên trước nhé");return;}if(!/^[A-Z0-9]{2,12}$/.test(id)){toast("ID gồm 2 đến 12 chữ cái hoặc số, không dấu");return;}if(PROFS.some(p=>p.id===id)){toast("ID này đã có, chọn ID khác");return;}if(pin&&!/^\d{4}$/.test(pin)){toast("PIN gồm đúng 4 số");return;}
-    PROFS.push({id,name,pin,lv:{en:+document.getElementById("plen").value,zh:+document.getElementById("plzh").value}});saveProfiles();localStorage.setItem(CURP,id);location.hash="#/";location.reload();return;}
+    PROFS.push({id,name,pin,lv:{en:1,zh:1},test:{}});saveProfiles();localStorage.setItem(CURP,id);location.hash="#/";location.reload();return;}
   const se=e.target.closest("[data-set]");
   if(se){
     if(se.dataset.set==="connect"){const tok=(document.getElementById("tok").value||"").trim();if(!tok){toast("KC dán mã truy cập trước nhé");return;}se.disabled=true;se.textContent="Đang kết nối";try{await Sync.connect(tok);toast("Đã bật đồng bộ");renderSettings();}catch(err){setSyncCfg({});toast("Không kết nối được, KC kiểm tra lại mã");se.disabled=false;se.textContent="Bật đồng bộ";}}

@@ -428,3 +428,6 @@ select.field{appearance:auto}
 .xhint{font-size:14px;color:var(--ink);background:color-mix(in srgb,var(--blue) 8%,var(--surface));border-radius:12px;padding:10px 12px;margin:10px 0}
 body[data-mode="zh"] .xb.pend{border-color:var(--zh,#8573cf)}
 .xline.ans .xw{padding:0 3px}
+
+/* Mã chuyển máy */
+.xfcode{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;resize:vertical;min-height:110px;margin:12px 0}
