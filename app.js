@@ -363,7 +363,7 @@ function openPractice(m,id,sub){
   const p=PRACTICE[m].find(x=>x.id===id);if(!p||!p.ready){location.hash="#/"+m+"/practice";return;}
   if(id==="toc-ky"){const r=lvPick(window.EN_TOCKY,m),set=pick(r.items,1)[0];
     return startPractice(m,p,[{type:"drill",name:"Nghe tốc ký",intro:"Chỉ được nghe 2 lần. Vừa nghe vừa ghi chú bằng ký hiệu vào ô ghi chú, rồi trả lời dựa trên ghi chú.",head:{audio:set.audio,max:2,notes:true,title:set.title},items:set.items}]);}
-  if(id==="xe-cau"){const d=m==="en"?window.EN_XECAU:window.ZH_XECAU;const steps=[{type:"xecau",name:"Xé câu",data:d}];
+  if(id==="xe-cau"){const all=[].concat(m==="en"?window.EN_XECAU:window.ZH_XECAU),d=pick(lvPick(all,m).items,1)[0];const steps=[{type:"xecau",name:"Xé câu",data:d}];
     if(d.items)steps.push({type:"drill",name:"Câu hỏi đọc hiểu",intro:"Trả lời dựa trên đoạn vừa xé.",head:{title:d.title,minutes:5,passage:[d.sents.map(x=>x.c.map(c=>c[0]).join(" ")).join(" ")]},items:d.items});
     return startPractice(m,p,steps);}
   if(id==="doc-dang"){const list=window.EN_DOCDANG;if(!sub)return chooser(m,p,list);const d=list.find(x=>x.id===sub);if(!d)return chooser(m,p,list);
@@ -457,7 +457,7 @@ function initStep(s){
     return {items,queue:items.map((_,i)=>i),first:{},cur:null,fb:null,round:1,passed:false,score:null,plays:0,sel:[],hz:null};
   }
   if(s.type==="write")return {text:"",score:null,peek:false};
-  if(s.type==="xecau")return {i:0,cuts:{},lab:{},sel:null,checked:false,scores:[],done:false,score:null};
+  if(s.type==="xecau")return {i:0,rng:[],pend:null,sel:null,checked:false,scores:[],done:false,score:null};
   if(s.type==="svo")return {i:0,lab:{},sel:null,phase:1,labScore:0,shown:false,scores:[],done:false,score:null,osel:[],tiles:null};
   if(s.type==="book")return {ok:false};
   if(s.type==="game")return {done:false};
@@ -855,25 +855,28 @@ function quickCheck(s,text){
 function xsTokens(sent){const toks=[],gold=[];sent.c.forEach(([txt,lab])=>{const w=txt.split(" ").filter(Boolean),st=toks.length;w.forEach(x=>toks.push(x));gold.push([st,toks.length-1,lab]);});return {toks,gold};}
 function xsChunks(n,cuts){const out=[];let st=0;for(let k=0;k<n;k++){if(cuts[k]||k===n-1){out.push([st,k]);st=k+1;}}return out;}
 function labIdx(m,l){return (window.XECAU_LABELS[m]||[]).findIndex(x=>x[0]===l);}
+function xsUsed(d,m){const u=new Set();d.sents.forEach(x=>x.c.forEach(c=>u.add(c[1])));return window.XECAU_LABELS[m].filter(l=>u.has(l[0]));}
+function xsAt(st,k){return st.rng.find(r=>k>=r.a&&k<=r.b);}
 function xecauHtml(s){
-  const st=s.st,d=s.data,m=L.lang,zh=m==="zh",labs=window.XECAU_LABELS[m];
+  const st=s.st,d=s.data,m=L.lang,zh=m==="zh",labs=xsUsed(d,m);
   if(st.done)return `<div class="card result ok">${mascot(MODES[m].mascot,st.score>=0.8?"jump":"idle")}<div class="big">${Math.round(st.score*100)}%</div><p>Đã xé xong ${d.sents.length} câu.</p></div>`;
-  const sent=d.sents[st.i],{toks,gold}=xsTokens(sent),chunks=xsChunks(toks.length,st.cuts);
-  const pal=`<div class="xpal">${labs.map((l,i)=>`<button class="xl L${i} ${st.sel===l[0]?"on":""}" data-xl="${l[0]}"><b>${l[0]}</b> ${l[1]}</button>`).join("")}</div>`;
-  let line="";
-  chunks.forEach(([a,b],ci)=>{const lab=st.lab[a],li=lab?labIdx(m,lab):-1;
-    line+=`<span class="xc ${li>=0?"L"+li:""}" data-xs="${a}">${lab?`<i class="xt">${lab}</i>`:""}`;
-    for(let k=a;k<=b;k++){line+=`<span class="xw ${zh?"zh":""}">${toks[k]}</span>`;if(k<b)line+=`<button class="xg" data-xg="${k}" ${st.checked?"disabled":""}></button>`;}
-    line+=`</span>`;if(b<toks.length-1)line+=`<button class="xg cut" data-xg="${b}" ${st.checked?"disabled":""}></button>`;});
+  const sent=d.sents[st.i],{toks,gold}=xsTokens(sent);
+  const pal=`<div class="xpal">${labs.map(l=>`<button class="xl L${labIdx(m,l[0])} ${st.sel===l[0]?"on":""}" data-xl="${l[0]}"><b>${l[0]}</b> ${l[1]}</button>`).join("")}</div>`;
+  let line="",k=0;
+  while(k<toks.length){const r=xsAt(st,k);
+    if(r){line+=`<span class="xc L${labIdx(m,r.l)}"><i class="xt">${r.l}</i>${toks.slice(r.a,r.b+1).map((w,j)=>`<button class="xw xb ${zh?"zh":""}" data-xw="${r.a+j}" ${st.checked?"disabled":""}>${w}</button>`).join("")}</span>`;k=r.b+1;}
+    else{line+=`<button class="xw xb free ${st.pend===k?"pend":""} ${zh?"zh":""}" data-xw="${k}" ${st.checked?"disabled":""}>${toks[k]}</button>`;k++;}}
+  const left=toks.filter((_,i)=>!xsAt(st,i)).length,lab=labs.find(l=>l[0]===st.sel);
+  const hint=!st.sel?"<b>Bước 1:</b> chọn một nhãn màu ở trên.":st.pend===null?(left?`<b>Bước 2:</b> chạm vào <b>từ đầu tiên</b> của cụm <b>${lab[0]} ${lab[1]}</b>.`:"Đã chia hết câu. Bấm <b>Kiểm tra câu</b>."):`<b>Bước 3:</b> chạm vào <b>từ cuối cùng</b> của cụm. Cụm chỉ có 1 từ thì chạm lại chính từ đó.`;
   let res="";
-  if(st.checked){const user=chunks.map(([a,b])=>[a,b,st.lab[a]]),ok=gold.filter(g=>user.some(u=>u[0]===g[0]&&u[1]===g[1]&&u[2]===g[2])).length;
+  if(st.checked){const ok=gold.filter(g=>st.rng.some(u=>u.a===g[0]&&u.b===g[1]&&u.l===g[2])).length;
     res=`<div class="fb ${ok===gold.length?"ok":"no"}"><b>Đúng ${ok}/${gold.length} cụm</b></div><div class="sec">Đáp án</div><div class="xline ans">${gold.map(([a,b,l])=>`<span class="xc L${labIdx(m,l)}"><i class="xt">${l}</i>${toks.slice(a,b+1).map(w=>`<span class="xw ${zh?"zh":""}">${w}</span>`).join(zh?"":" ")}</span>`).join(" ")}</div>
       ${sent.py?`<p class="py">${sent.py}</p>`:""}<p class="vi-tr">${sent.vi}</p>${sayBtn(sent.c.map(c=>c[0]).join(zh?"":" ").replace(/ /g,zh?"":" "),MODES[m].tts,false,"Nghe câu")}
       <button class="btn block" data-xnext="1" style="margin-top:12px">${st.i<d.sents.length-1?"Câu tiếp":"Xong phần xé câu"}</button>`;}
-  return `<details class="card legend" ${st.i===0&&!st.checked?"open":""}><summary>Cách xé câu</summary><p class="small">${d.steps}</p><p class="small">Chạm vào khe giữa hai từ để <b>cắt cụm</b> (chạm lại để bỏ). Chọn nhãn màu rồi chạm vào cụm để <b>gắn nhãn</b>.</p></details>
+  return `<details class="card legend" ${st.i===0&&!st.checked?"open":""}><summary>Cách xé câu</summary><p class="small">${d.steps}</p><p class="small">Chọn nhãn màu, chạm <b>từ đầu</b> rồi <b>từ cuối</b> của cụm để tô màu cả cụm. Chạm vào cụm đã tô để xoá cụm đó.</p></details>
     <div class="dprog"><span>Câu ${st.i+1}/${d.sents.length}</span><span>${st.scores.length?Math.round(st.scores.reduce((a,b)=>a+b,0)/st.scores.length*100)+"% đúng":""}</span></div>
-    ${st.checked?"":pal}<div class="card"><div class="xline">${line}</div></div>
-    ${st.checked?res:`<button class="btn block" data-xcheck="1">Kiểm tra câu</button>`}`;
+    ${st.checked?"":pal}${st.checked?"":`<div class="xhint">${hint}</div>`}<div class="card"><div class="xline">${line}</div></div>
+    ${st.checked?res:`<button class="btn block" data-xcheck="1">Kiểm tra câu</button><button class="btn ghost block" data-xreset="1" style="margin-top:10px">Làm lại câu này</button>`}`;
 }
 function svoHtml(s){
   const st=s.st,m=L.lang,zh=m==="zh",labs=window.SVO_LABELS[m];
@@ -896,12 +899,18 @@ function handleXS(e){
   const s=L.steps[L.idx];if(!s||(s.type!=="xecau"&&s.type!=="svo"))return false;const st=s.st;
   const xl=e.target.closest("[data-xl]");if(xl){st.sel=xl.dataset.xl;rerenderDrill();return true;}
   if(s.type==="xecau"){
-    const g=e.target.closest("[data-xg]");if(g&&!st.checked){const k=+g.dataset.xg;st.cuts[k]=!st.cuts[k];
-      const sent=s.data.sents[st.i],{toks}=xsTokens(sent),ch=xsChunks(toks.length,st.cuts),starts=new Set(ch.map(c=>c[0]));Object.keys(st.lab).forEach(a=>{if(!starts.has(+a))delete st.lab[a];});rerenderDrill();return true;}
-    const c=e.target.closest("[data-xs]");if(c&&!st.checked){if(!st.sel){toast("Chọn nhãn trước rồi chạm vào cụm");return true;}st.lab[c.dataset.xs]=st.sel;rerenderDrill();return true;}
-    if(e.target.closest("[data-xcheck]")){const sent=s.data.sents[st.i],{toks,gold}=xsTokens(sent),ch=xsChunks(toks.length,st.cuts),user=ch.map(([a,b])=>[a,b,st.lab[a]]);
-      const ok=gold.filter(g=>user.some(u=>u[0]===g[0]&&u[1]===g[1]&&u[2]===g[2])).length;st.scores.push(ok/gold.length);st.checked=true;mood(ok===gold.length?"happy":"sad");rerenderDrill();return true;}
-    if(e.target.closest("[data-xnext]")){st.i++;st.cuts={};st.lab={};st.checked=false;if(st.i>=s.data.sents.length){st.done=true;st.score=st.scores.reduce((a,b)=>a+b,0)/st.scores.length;}rerenderDrill();window.scrollTo(0,0);return true;}
+    const w=e.target.closest("[data-xw]");if(w&&!st.checked){const k=+w.dataset.xw,r=xsAt(st,k);
+      if(r){st.rng=st.rng.filter(x=>x!==r);st.pend=null;rerenderDrill();return true;}
+      if(!st.sel){toast("Chọn nhãn màu trước rồi chạm vào từ");return true;}
+      if(st.pend===null){st.pend=k;rerenderDrill();return true;}
+      const a=Math.min(st.pend,k),b=Math.max(st.pend,k);
+      for(let i=a;i<=b;i++)if(xsAt(st,i)){toast("Cụm này chồng lên cụm đã tô. Chạm cụm cũ để xoá trước nhé");st.pend=null;rerenderDrill();return true;}
+      st.rng.push({a,b,l:st.sel});st.pend=null;rerenderDrill();return true;}
+    if(e.target.closest("[data-xreset]")){st.rng=[];st.pend=null;rerenderDrill();return true;}
+    if(e.target.closest("[data-xcheck]")){const sent=s.data.sents[st.i],{toks,gold}=xsTokens(sent);
+      const left=toks.filter((_,i)=>!xsAt(st,i)).length;if(left){toast(`Còn ${left} từ chưa tô vào cụm nào`);return true;}
+      const ok=gold.filter(g=>st.rng.some(u=>u.a===g[0]&&u.b===g[1]&&u.l===g[2])).length;st.scores.push(ok/gold.length);st.checked=true;mood(ok===gold.length?"happy":"sad");rerenderDrill();return true;}
+    if(e.target.closest("[data-xnext]")){st.i++;st.rng=[];st.pend=null;st.sel=null;st.checked=false;if(st.i>=s.data.sents.length){st.done=true;st.score=st.scores.reduce((a,b)=>a+b,0)/st.scores.length;}rerenderDrill();window.scrollTo(0,0);return true;}
   }
   if(s.type==="svo"){
     const it=s.items[st.i];

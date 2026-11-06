@@ -34,7 +34,23 @@ window.XECAU_LABELS = {
   en:[["S","Chủ ngữ"],["V","Động từ chính"],["O","Tân ngữ, bổ ngữ"],["Y","Trạng ngữ (giới từ, to V)"],["X","Mệnh đề phụ (who, which, that)"],["Lt","Liên từ"]],
   zh:[["主","Chủ ngữ"],["谓","Vị ngữ (động từ)"],["宾","Tân ngữ"],["状","Trạng ngữ (thời gian, nơi chốn, 把, 跟)"],["补","Bổ ngữ"],["定","Định ngữ (…的)"]]
 };
-window.EN_XECAU = {
+window.EN_XECAU = [{
+  lv:1, title:"My café",
+  steps:"Bước 1: tìm động từ chính (is, are, work, opens, served). Bước 2: ai hoặc cái gì làm việc đó, đứng trước động từ, là chủ ngữ S. Bước 3: phần ngay sau động từ là tân ngữ, bổ ngữ O. Bước 4: cụm chỉ thời gian, nơi chốn, tần suất là trạng ngữ Y.",
+  sents:[
+    {c:[["My name","S"],["is","V"],["Mai.","O"]], vi:"Tên tôi là Mai."},
+    {c:[["I","S"],["work","V"],["at a small café in District 1.","Y"]], vi:"Tôi làm việc ở một quán cà phê nhỏ tại Quận 1."},
+    {c:[["The café","S"],["opens","V"],["at seven every morning.","Y"]], vi:"Quán mở cửa lúc bảy giờ mỗi sáng."},
+    {c:[["My staff","S"],["are","V"],["very friendly.","O"]], vi:"Nhân viên của tôi rất thân thiện."},
+    {c:[["We","S"],["usually","Y"],["close","V"],["at ten.","Y"]], vi:"Chúng tôi thường đóng cửa lúc mười giờ."},
+    {c:[["Yesterday,","Y"],["we","S"],["served","V"],["fifty customers.","O"]], vi:"Hôm qua chúng tôi đã phục vụ năm mươi khách."}
+  ],
+  items:[
+    {type:"mcq", q:"TRUE, FALSE or NOT GIVEN: Mai works at a big café.", o:["TRUE","FALSE","NOT GIVEN"], a:1, why:"Câu 2: a small café, quán nhỏ."},
+    {type:"mcq", q:"TRUE, FALSE or NOT GIVEN: The café opens at seven.", o:["TRUE","FALSE","NOT GIVEN"], a:0, why:"Câu 3: opens at seven every morning."},
+    {type:"mcq", q:"TRUE, FALSE or NOT GIVEN: Mai has five staff.", o:["TRUE","FALSE","NOT GIVEN"], a:2, why:"Bài không nói có bao nhiêu nhân viên."}
+  ]
+},{
   lv:3, title:"Night markets",
   steps:"Bước 1: tìm cụm trạng ngữ (giới từ, to V). Bước 2: tìm mệnh đề phụ (who, which, that). Bước 3: tìm liên từ và động từ chính. Bước 4: phần còn lại trước động từ là chủ ngữ, sau là tân ngữ. Bước 5: soát lại.",
   sents:[
@@ -49,8 +65,19 @@ window.EN_XECAU = {
     {type:"mcq", q:"TRUE, FALSE or NOT GIVEN: The vendors own their stalls.", o:["TRUE","FALSE","NOT GIVEN"], a:1, why:"Câu 2: vendors who rent small stalls, tức là đi thuê."},
     {type:"mcq", q:"TRUE, FALSE or NOT GIVEN: Paper packaging is cheaper than plastic.", o:["TRUE","FALSE","NOT GIVEN"], a:2, why:"Bài không so sánh giá giấy và nhựa."}
   ]
-};
-window.ZH_XECAU = {
+}];
+window.ZH_XECAU = [{
+  lv:1, title:"Tự giới thiệu",
+  steps:"Bước 1: tìm động từ chính (是, 叫, 学). Bước 2: phía trước động từ là chủ ngữ 主. Bước 3: 不, 也 đứng sát trước động từ là trạng ngữ 状. Bước 4: phía sau động từ là tân ngữ 宾.",
+  sents:[
+    {c:[["我","主"],["是","谓"],["越南人","宾"]], vi:"Tôi là người Việt Nam.", py:"Wǒ shì Yuènán rén."},
+    {c:[["我","主"],["叫","谓"],["KC","宾"]], vi:"Tôi tên là KC.", py:"Wǒ jiào KC."},
+    {c:[["他","主"],["不","状"],["是","谓"],["中国人","宾"]], vi:"Anh ấy không phải người Trung Quốc.", py:"Tā bú shì Zhōngguó rén."},
+    {c:[["我们","主"],["也","状"],["是","谓"],["越南人","宾"]], vi:"Chúng tôi cũng là người Việt Nam.", py:"Wǒmen yě shì Yuènán rén."},
+    {c:[["你","主"],["叫","谓"],["什么 名字","宾"]], vi:"Bạn tên là gì?", py:"Nǐ jiào shénme míngzi?"},
+    {c:[["我","主"],["学","谓"],["中文","宾"]], vi:"Tôi học tiếng Trung.", py:"Wǒ xué Zhōngwén."}
+  ]
+},{
   lv:3, title:"Xé câu tiếng Trung",
   steps:"Trật tự câu tiếng Trung: (定) 主 + 状 (thời gian, nơi chốn, 把, 跟) + 谓 + 补 + (定) 宾. Tìm động từ chính trước, rồi xem cụm nào đứng trước động từ (thường là trạng ngữ) và sau động từ (bổ ngữ, tân ngữ).",
   sents:[
@@ -60,7 +87,7 @@ window.ZH_XECAU = {
     {c:[["我","主"],["昨天","状"],["跟 朋友","状"],["喝了","谓"],["两杯 咖啡","宾"]], vi:"Hôm qua tôi uống hai ly cà phê với bạn.", py:"Wǒ zuótiān gēn péngyou hē le liǎng bēi kāfēi."},
     {c:[["服务员","主"],["说","谓"],["得 很 快","补"]], vi:"Nhân viên phục vụ nói rất nhanh.", py:"Fúwùyuán shuō de hěn kuài."}
   ]
-};
+}];
 
 window.EN_DOCDANG = [
   {lv:3,id:"tfng", t:"TRUE, FALSE, NOT GIVEN", tips:["<b>TRUE</b>: bài nói đúng ý câu hỏi, thường bằng từ đồng nghĩa (paraphrase).","<b>FALSE</b>: bài nói ngược lại câu hỏi.","<b>NOT GIVEN</b>: bài không có thông tin để khẳng định hay phủ định.","Cẩn thận từ chỉ mức độ: all, only, always, never, most, up to."],
@@ -249,3 +276,13 @@ window.ZH_SANDHI = [
 ].forEach(([lv,q,o])=>window.EN_PHANXA.push({lv,q,o,a:0}));
 window.EN_SPEAK.p1.forEach(x=>x.lv=2);window.EN_SPEAK.p2.forEach(x=>x.lv=3);window.EN_SPEAK.p3.forEach(x=>x.lv=4);
 window.EN_SVO.forEach((x,i)=>x.lv=i<2?2:3);window.ZH_SVO.forEach(x=>x.lv=2);
+
+// Kho từ và khung câu cho Viết theo khối
+window.WRITE_HELP={
+ "t1-intro":{bank:[["illustrates","minh họa"],["compares","so sánh"],["gives information about","cung cấp thông tin về"],["how many","bao nhiêu"],["the proportion of","tỷ lệ"],["over a period of","trong khoảng thời gian"],["between ... and ...","giữa ... và ..."]],frames:["The line graph illustrates how many ______ visited ______ between ___ and ___."]},
+ "t1-over":{bank:[["Overall","nhìn chung"],["it is clear that","có thể thấy rõ"],["saw a rise","có sự tăng"],["followed by a sharp fall","sau đó giảm mạnh"],["the most","nhiều nhất"],["throughout the period","suốt giai đoạn"]],frames:["Overall, it is clear that all three countries saw ______ until 2015, followed by ______ in 2020.","______ attracted the most visitors throughout the period."]},
+ "t1-body":{bank:[["received","đón"],["compared with","so với"],["while / whereas","trong khi"],["almost doubled","tăng gần gấp đôi"],["more than doubled","tăng hơn gấp đôi"],["dropped dramatically","giảm mạnh"],["reaching","đạt mức"],["just","chỉ"]],frames:["In 2010, Thailand received ___ million visitors, compared with ___ million for Japan.","Over the next five years, the figure for Thailand ______ to ___ million, while Japan's ______.","In 2020, however, numbers in all three countries ______."]},
+ "t2-intro":{bank:[["is a widely debated issue","là vấn đề gây tranh luận"],["free of charge","miễn phí"],["While I accept that","dù tôi thừa nhận rằng"],["I largely agree that","tôi phần lớn đồng ý rằng"],["place a burden on","tạo gánh nặng cho"],["public budgets","ngân sách công"]],frames:["Whether ______ should be free for everyone is a widely debated issue.","While I accept that ______, I largely agree that ______ because ______."]},
+ "t2-body":{bank:[["The main reason why","lý do chính là"],["gives ... the same opportunity","cho ... cơ hội như nhau"],["low income families","gia đình thu nhập thấp"],["For example","ví dụ"],["As a result","kết quả là"],["not only ... but also","không chỉ ... mà còn"],["make full use of","tận dụng tối đa"]],frames:["The main reason why ______ is that ______.","When ______, many of them ______.","For example, in ______, ______.","As a result, ______."]},
+ "t2-concl":{bank:[["In conclusion","tóm lại"],["although","mặc dù"],["outweigh","lớn hơn, vượt trội"],["an equal chance","cơ hội ngang nhau"],["develop its potential","phát triển tiềm năng"]],frames:["In conclusion, although ______, I believe ______.","It ______ and helps ______."]}
+};

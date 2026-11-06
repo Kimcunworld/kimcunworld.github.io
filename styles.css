@@ -413,3 +413,18 @@ select.field{appearance:auto}
 .two3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .rxq .prompt{font-size:20px}
 .big2{font-size:24px}
+.hint summary{margin:0}.wchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.wchip{border:1.5px solid var(--blue-line);background:var(--bg);border-radius:12px;padding:7px 10px;cursor:pointer;text-align:left;display:flex;flex-direction:column;font-size:14px}
+.wchip span{font-size:12px;color:var(--muted)}
+.frame{display:block;width:100%;text-align:left;border:1.5px dashed var(--blue);background:var(--blue-soft);border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;font-size:15px;line-height:1.5}
+.qc ul{padding-left:0;list-style:none;margin:8px 0}.qc li{padding:4px 0;font-size:14px}.qc li.w{color:var(--bad)}.qc li.g{color:var(--ok)}
+/* v7: xé câu chạm từ */
+.xline{gap:6px 4px}
+.xb{font:inherit;color:inherit;background:transparent;border:none;border-radius:8px;padding:4px 4px;cursor:pointer;min-height:40px}
+.xb.xw{font-size:18px}.xb.xw.zh{font-size:26px}
+.xb.free{border:1.5px dashed var(--blue-line);background:var(--surface);padding:4px 8px}
+.xb.pend{border:2px solid var(--blue);background:color-mix(in srgb,var(--blue) 18%,var(--surface));box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 20%,transparent)}
+.xc .xb{min-height:34px}
+.xhint{font-size:14px;color:var(--ink);background:color-mix(in srgb,var(--blue) 8%,var(--surface));border-radius:12px;padding:10px 12px;margin:10px 0}
+body[data-mode="zh"] .xb.pend{border-color:var(--zh,#8573cf)}
+.xline.ans .xw{padding:0 3px}
