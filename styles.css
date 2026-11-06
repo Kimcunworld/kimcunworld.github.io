@@ -18,7 +18,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+body{background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro","Noto Sans KR",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 a{color:var(--blue-strong)}
 .zh{font-family:"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif}
 button{font:inherit;color:inherit}
@@ -431,3 +431,22 @@ body[data-mode="zh"] .xb.pend{border-color:var(--zh,#8573cf)}
 
 /* Mã chuyển máy */
 .xfcode{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;resize:vertical;min-height:110px;margin:12px 0}
+
+/* Tiếng Hàn: tông hồng đào */
+.ko{font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.ko.big{font-size:30px;font-weight:500;line-height:1.3}
+.opt .ko{font-size:20px}
+body[data-mode="ko"]{--blue:#f4b49c;--blue-strong:#e2805f;--blue-soft:#fdf0ea;--blue-line:#f5d8cb}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) body[data-mode="ko"]{--blue:#b8735a;--blue-strong:#f4b49c;--blue-soft:#3a2620;--blue-line:#5a3a30}}
+.modecard.ko{background:linear-gradient(135deg,#f6b198,#df7c5c)}
+.word .w:lang(ko),.word .w{word-break:keep-all}
+/* Bảng tô chữ Hangul */
+.hgcard .hghead{display:flex;align-items:center;gap:12px}
+.hgcard .hgc{font-size:44px;font-weight:500;min-width:56px;text-align:center;color:var(--blue-strong)}
+.hgcard .meta{flex:1}
+.hgbox{position:relative;margin:12px auto 8px;border:1.5px dashed var(--blue-line);border-radius:16px;background:var(--surface);overflow:hidden}
+.hgbox .ghost{position:absolute;inset:0;display:grid;place-items:center;font-size:185px;line-height:1;color:var(--blue-line);user-select:none;pointer-events:none;transition:opacity .2s}
+.hgbox.noghost .ghost{opacity:0}
+.hgbox canvas{position:absolute;inset:0;touch-action:none}
+.tonebtn .syl.ko{font-size:26px}.tonebtn .syl small{display:block;font-size:12px;font-family:"Be Vietnam Pro",sans-serif;color:var(--muted)}
+.lt.ko,.fc .ff.ko,.drop.ko{font-size:22px}

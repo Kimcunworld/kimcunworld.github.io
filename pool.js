@@ -81,3 +81,22 @@ window.ZH_POOL.forEach(w=>{if(!w.lv)w.lv=2;});
  [4,"熟悉","shúxī","quen thuộc"],[4,"适应","shìyìng","thích ứng"],[4,"印象","yìnxiàng","ấn tượng"],[4,"负责","fùzé","phụ trách"],[4,"尽快","jǐnkuài","càng sớm càng tốt"],[4,"部门","bùmén","bộ phận"],[4,"接待","jiēdài","tiếp đón"],[4,"手续","shǒuxù","thủ tục"],[4,"优点","yōudiǎn","ưu điểm"],[4,"竞争","jìngzhēng","cạnh tranh"],
  [5,"岗位","gǎngwèi","vị trí công việc"],[5,"尽力","jìnlì","cố gắng hết sức"],[5,"业务","yèwù","nghiệp vụ"],[5,"营业","yíngyè","kinh doanh, mở cửa"],[5,"利润","lìrùn","lợi nhuận"],[5,"宣传","xuānchuán","quảng bá"],[5,"投资","tóuzī","đầu tư"],[5,"客户","kèhù","khách hàng"],[5,"效率","xiàolǜ","hiệu suất"],[5,"合作","hézuò","hợp tác"]
 ].forEach(([lv,h,py,vi])=>window.ZH_POOL.push({h,py,vi,lv}));
+
+// Tiếng Hàn: từ trong phần Hangul của giáo trình Sơ cấp 1 và từ thông dụng
+window.KO_POOL = [
+  {w:"오이",ipa:"oi",vi:"dưa chuột",lv:1},{w:"우유",ipa:"uyu",vi:"sữa",lv:1},{w:"모자",ipa:"moja",vi:"cái mũ",lv:1},
+  {w:"바지",ipa:"baji",vi:"cái quần",lv:1},{w:"치마",ipa:"chima",vi:"cái váy",lv:1},{w:"사과",ipa:"sagwa",vi:"quả táo",lv:1},
+  {w:"고기",ipa:"gogi",vi:"thịt",lv:1},{w:"시계",ipa:"sigye",vi:"đồng hồ",lv:1},{w:"휴지",ipa:"hyuji",vi:"khăn giấy",lv:1},
+  {w:"돼지",ipa:"dwaeji",vi:"con lợn",lv:1},{w:"의자",ipa:"uija",vi:"cái ghế",lv:1},{w:"포도",ipa:"podo",vi:"quả nho",lv:1},
+  {w:"피자",ipa:"pija",vi:"bánh pizza",lv:1},{w:"기차",ipa:"gicha",vi:"tàu hỏa",lv:1},{w:"토끼",ipa:"tokki",vi:"con thỏ",lv:1},
+  {w:"떡",ipa:"tteok",vi:"bánh gạo",lv:1},{w:"빵",ipa:"ppang",vi:"bánh mì",lv:1},{w:"딸기",ipa:"ttalgi",vi:"dâu tây",lv:1},
+  {w:"옷",ipa:"ot",vi:"quần áo",lv:1},{w:"꽃",ipa:"kkot",vi:"bông hoa",lv:1},{w:"생선",ipa:"saengseon",vi:"cá (món ăn)",lv:1},
+  {w:"지갑",ipa:"jigap",vi:"cái ví",lv:1},{w:"발",ipa:"bal",vi:"bàn chân",lv:1},{w:"닭",ipa:"dak",vi:"con gà",lv:1},
+  {w:"물",ipa:"mul",vi:"nước",lv:1},{w:"커피",ipa:"keopi",vi:"cà phê",lv:1},{w:"나무",ipa:"namu",vi:"cái cây",lv:1},
+  {w:"학교",ipa:"hakgyo",vi:"trường học",lv:2},{w:"학생",ipa:"haksaeng",vi:"học sinh",lv:2},{w:"선생님",ipa:"seonsaengnim",vi:"thầy cô giáo",lv:2},
+  {w:"친구",ipa:"chingu",vi:"bạn bè",lv:2},{w:"회사원",ipa:"hoesawon",vi:"nhân viên công ty",lv:2},{w:"베트남",ipa:"beteunam",vi:"Việt Nam",lv:2},
+  {w:"한국",ipa:"hanguk",vi:"Hàn Quốc",lv:2},{w:"감사합니다",ipa:"gamsahamnida",vi:"cảm ơn",lv:2},{w:"식당",ipa:"sikdang",vi:"nhà hàng, quán ăn",lv:2},
+  {w:"음식",ipa:"eumsik",vi:"món ăn",lv:3},{w:"주말",ipa:"jumal",vi:"cuối tuần",lv:3},{w:"가족",ipa:"gajok",vi:"gia đình",lv:3},
+  {w:"날씨",ipa:"nalssi",vi:"thời tiết",lv:3},{w:"취미",ipa:"chwimi",vi:"sở thích",lv:3},{w:"생일",ipa:"saengil",vi:"sinh nhật",lv:3}
+];
+window.KO_POOL.forEach((w,i)=>{w.id="p"+i;});

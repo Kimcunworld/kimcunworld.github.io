@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kiểm tra đầu vào</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f5f9fd; --surface:#ffffff; --ink:#1f2a37; --muted:#6b7a8c;
@@ -29,6 +29,8 @@
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
 .zh{font-family:"Noto Sans SC","PingFang SC",sans-serif}
+.ko{font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+.prompt .ko{font-size:1.3em}
 .hero{position:relative;overflow:hidden;padding:44px 16px 64px;background:linear-gradient(180deg,var(--blue-soft),var(--bg))}
 .hero::before,.hero::after{content:"";position:absolute;border-radius:999px;border:22px solid var(--blue);opacity:.35;filter:blur(1px)}
 .hero::before{width:420px;height:420px;left:-180px;top:-200px}
@@ -38,7 +40,7 @@ body{background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-u
 h1{font-size:clamp(28px,6vw,40px);line-height:1.2;margin:16px 0 8px;letter-spacing:-.01em}
 .lead{color:var(--muted);margin:0;max-width:560px}
 .tabs{display:flex;gap:8px;margin:-32px auto 0;max-width:720px;padding:0 16px;position:relative;z-index:2}
-.tab{flex:1;border:1px solid var(--blue-line);background:var(--surface);color:var(--ink);font:inherit;font-weight:600;padding:14px 12px;border-radius:14px;cursor:pointer;transition:.2s}
+.tab{flex:1;border:1px solid var(--blue-line);background:var(--surface);color:var(--ink);font:inherit;font-weight:600;font-size:14px;padding:12px 8px;border-radius:14px;cursor:pointer;transition:.2s}
 .tab[aria-selected="true"]{background:var(--blue-strong);border-color:var(--blue-strong);color:#fff;box-shadow:0 8px 20px -10px var(--blue-strong)}
 main{max-width:720px;margin:0 auto;padding:20px 16px 80px}
 .panel{display:none}.panel.active{display:block}
@@ -88,6 +90,7 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
 <div class="tabs" role="tablist">
   <button class="tab" role="tab" aria-selected="true" data-tab="en">Tiếng Anh · IELTS</button>
   <button class="tab" role="tab" aria-selected="false" data-tab="zh">Tiếng Trung · <span class="zh">中文</span></button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="ko">Tiếng Hàn · <span class="ko">한국어</span></button>
 </div>
 
 <main>
@@ -108,6 +111,15 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:0 16px 40px}
     <div id="zh-qs"></div>
     <button class="submit" id="zh-submit">Chấm điểm tiếng Trung</button>
     <div class="result" id="zh-result"></div>
+  </section>
+  <!-- KOREAN -->
+  <section class="panel" id="panel-ko">
+    <div class="intro"><b>12 câu, khoảng 8 phút.</b> Gồm chữ Hangul, nghe, nghĩa từ và câu giao tiếp cơ bản.
+      <button class="submit ghost skip" id="ko-skip">Mình chưa học tiếng Hàn, bắt đầu từ bảng chữ cái</button>
+    </div>
+    <div id="ko-qs"></div>
+    <button class="submit" id="ko-submit">Chấm điểm tiếng Hàn</button>
+    <div class="result" id="ko-result"></div>
   </section>
 </main>
 <footer>Kim Cun world · Học mỗi ngày một chút</footer>
@@ -171,6 +183,24 @@ const ZH=[
  {lv:3,q:'Điền vào chỗ trống: <span class="zh">这家店的咖啡___好喝___便宜。</span> (vừa ngon vừa rẻ)',o:['<span class="zh">又…又…</span>','<span class="zh">因为…所以…</span>','<span class="zh">如果…就…</span>','<span class="zh">不但…而且没…</span>'],a:0}
 ];
 
+const ks=t=>`<span class="ko">${t}</span>`;
+const KO=[
+ {sec:"Chữ Hangul"},
+ {lv:1,q:`${ks("아")} đọc là:`,o:["a","ơ","ô","u"],a:0},
+ {lv:1,q:`${ks("ㄱ + ㅗ")} ghép thành:`,o:[ks("고"),ks("거"),ks("구"),ks("가")],a:0},
+ {lv:1,say:"우유",q:"Nghe và chọn từ đúng",o:[ks("우유"),ks("여우"),ks("오이"),ks("이유")],a:0},
+ {lv:1,say:"까",q:"Nghe và chọn âm đúng",o:[ks("까"),ks("가"),ks("카")],a:0},
+ {lv:1,q:`${ks("밥")} đọc là:`,o:["bap","bam","pab","bak"],a:0},
+ {sec:"Từ vựng và câu cơ bản"},
+ {lv:2,q:`${ks("안녕하세요")} nghĩa là gì?`,o:["Xin chào","Cảm ơn","Tạm biệt","Xin lỗi"],a:0},
+ {lv:2,q:`${ks("학생")} nghĩa là gì?`,o:["Học sinh","Trường học","Giáo viên","Bạn bè"],a:0},
+ {lv:2,q:`Điền vào chỗ trống: 저___ 베트남 사람입니다. (Tôi là người Việt Nam)`,o:[ks("는"),ks("을"),ks("에"),ks("가")],a:0},
+ {lv:2,say:"감사합니다",q:"Người nói muốn nói gì?",o:["Cảm ơn","Xin chào","Xin lỗi","Tạm biệt"],a:0},
+ {sec:"Nâng cao"},
+ {lv:3,q:`${ks("어제 친구를 만났어요.")} nghĩa là gì?`,o:["Hôm qua tôi đã gặp bạn","Ngày mai tôi gặp bạn","Tôi đang gặp bạn","Bạn tôi đã đi"],a:0},
+ {lv:3,q:`Chọn câu đúng cho “Cho tôi 2 ly cà phê”:`,o:[ks("커피 두 잔 주세요."),ks("커피 둘 잔 주세요."),ks("커피 이 잔 주세요."),ks("두 커피 잔 주세요.")],a:0},
+ {lv:3,q:`${ks("비가 와서 집에 있었어요.")} nghĩa là gì?`,o:["Vì trời mưa nên tôi đã ở nhà","Trời mưa nhưng tôi đã ra ngoài","Nếu trời mưa tôi sẽ ở nhà","Tôi thích ở nhà khi trời mưa"],a:0}
+];
 function speak(text,lang){
   if(!("speechSynthesis" in window)){alert("Thiết bị này chưa hỗ trợ đọc to.");return;}
   speechSynthesis.cancel();
@@ -198,6 +228,7 @@ function render(list,el,key,lang){
 }
 render(EN,document.getElementById("en-qs"),"en","en-GB");
 render(ZH,document.getElementById("zh-qs"),"zh","zh-CN");
+render(KO,document.getElementById("ko-qs"),"ko","ko-KR");
 
 document.addEventListener("change",e=>{
   if(e.target.type!=="radio")return;
@@ -287,9 +318,22 @@ function saveLv(m,lv){
   try{const list=JSON.parse(localStorage.getItem("kc-world-profiles")||"[]"),cur=localStorage.getItem("kc-world-current")||"KC";
     const p=list.find(x=>x.id===cur);if(p){p.lv=Object.assign({},p.lv,{[m]:lv});p.test=Object.assign({},p.test,{[m]:new Date().toISOString().slice(0,10)});localStorage.setItem("kc-world-profiles",JSON.stringify(list));}}catch(e){}
 }
-function goBtn(m){return `<a class="submit" href="./#/${m}" style="text-align:center;text-decoration:none">Vào học ${m==="en"?"tiếng Anh":"tiếng Trung"}</a>`;}
+function goBtn(m){return `<a class="submit" href="./#/${m}" style="text-align:center;text-decoration:none">Vào học ${({en:"tiếng Anh",zh:"tiếng Trung",ko:"tiếng Hàn"})[m]}</a>`;}
+function koResult(level,detail){
+  saveLv("ko",level);
+  const map={1:["Sơ cấp 1","Bắt đầu từ bảng chữ Hangul, phát âm và câu chào hỏi."],2:["Sơ cấp 2","Đã đọc được Hangul và câu cơ bản, học tiếp ngữ pháp sơ cấp."],3:["Trung cấp 1","Nắm khá chắc sơ cấp, học tiếp hội thoại dài và ngữ pháp trung cấp."]};
+  const el=document.getElementById("ko-result");
+  el.innerHTML=`<h3>Kết quả tiếng Hàn</h3><div class="score" style="font-size:30px">${map[level][0]}</div><p>${map[level][1]}</p>${detail}<p>Cấp độ đã lưu vào hồ sơ.</p>${goBtn("ko")}`;
+  el.classList.add("show");el.scrollIntoView({behavior:"smooth"});
+}
+document.getElementById("ko-submit").onclick=()=>{
+  const r=grade(KO,"ko"),c=l=>r.filter(x=>x.lv===l&&x.ok).length,t=l=>r.filter(x=>x.lv===l).length;
+  const h1=c(1),h2=c(2),h3=c(3);let level=1;if(h1>=4&&h2>=3){level=2;if(h3>=2)level=3;}
+  koResult(level,`<ul><li>Chữ Hangul: đúng ${h1}/${t(1)}</li><li>Từ vựng và câu cơ bản: đúng ${h2}/${t(2)}</li><li>Nâng cao: đúng ${h3}/${t(3)}</li></ul>`);
+};
+document.getElementById("ko-skip").onclick=()=>koResult(1,"");
 /* Mở từ web: chỉ hiện môn được chọn */
-(function(){const m=new URLSearchParams(location.search).get("m");if(m==="en"||m==="zh"){document.querySelector(".tabs").style.display="none";document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+m));}})();
+(function(){const m=new URLSearchParams(location.search).get("m");if(m==="en"||m==="zh"||m==="ko"){document.querySelector(".tabs").style.display="none";document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="panel-"+m));}})();
 
 function copy(text){
   const done=()=>alert("Đã sao chép kết quả.");
